@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.Button?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.faceScan.controller.MainController" prefWidth="800" prefHeight="600">
+    <children>
+        <ImageView fx:id="cameraView" fitWidth="640" fitHeight="480" layoutX="80" layoutY="50" preserveRatio="true"/>
+        <Button text="Start kamera" onAction="#onStartClicked" layoutX="350" layoutY="550"/>
+    </children>
+</AnchorPane>
