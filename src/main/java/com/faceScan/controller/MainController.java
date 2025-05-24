@@ -21,6 +21,12 @@ import java.util.TimerTask;
 public class MainController {
 
     @FXML
+    private Button startButton;
+
+    @FXML
+    private Button stopButton;
+
+    @FXML
     private ImageView cameraView;
 
     private VideoCapture camera;
@@ -31,8 +37,11 @@ public class MainController {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
     }
 
+
     @FXML
     private void onStartClicked() {
+        startButton.setVisible(false);
+        stopButton.setVisible(true);
         if (camera == null) {
             camera = new VideoCapture(0);
         }
@@ -53,7 +62,11 @@ public class MainController {
                 }
             }
         }, 0, 33); // ok. 30 FPS
+
+        startButton.setDisable(true);  // blokujemy start
+        stopButton.setDisable(false);  // odblokowujemy stop
     }
+
 
     private Image mat2Image(Mat frame) {
         try {
@@ -79,4 +92,30 @@ public class MainController {
 
         return image;
     }
+
+    @FXML
+    private void onStopClicked() {
+        startButton.setVisible(true);
+        stopButton.setVisible(false);
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
+        if (camera != null && camera.isOpened()) {
+            camera.release();
+            System.out.println("Kamera zamknięta");
+        }
+        Platform.runLater(() -> cameraView.setImage(null));
+
+        startButton.setDisable(false);  // odblokowujemy start
+        stopButton.setDisable(true);    // blokujemy stop
+    }
+
+    @FXML
+    public void initialize() {
+        stopButton.setVisible(false);
+        startButton.setVisible(true);
+    }
+
+
 }

@@ -7,6 +7,7 @@
 <AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.faceScan.controller.MainController" prefWidth="800" prefHeight="600">
     <children>
         <ImageView fx:id="cameraView" fitWidth="640" fitHeight="480" layoutX="80" layoutY="50" preserveRatio="true"/>
-        <Button text="Start kamera" onAction="#onStartClicked" layoutX="350" layoutY="550"/>
+        <Button fx:id="startButton" text="Start kamera" onAction="#onStartClicked" layoutX="350" layoutY="550"/>
+        <Button fx:id="stopButton" text="Stop kamera" onAction="#onStopClicked" layoutX="350" layoutY="550"/>
     </children>
 </AnchorPane>
