@@ -1,5 +1,8 @@
 package com.faceScan.controller;
 
+import com.faceScan.iface.IFaceDetector;
+import com.faceScan.iface.IFaceRecognizer;
+import com.faceScan.model.FaceDetector;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -19,6 +22,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainController {
+
+    private final IFaceDetector detector = new FaceDetector();
+    private final IFaceRecognizer recognizer = new FaceRecognizer();
+
 
     @FXML
     private Button startButton;
