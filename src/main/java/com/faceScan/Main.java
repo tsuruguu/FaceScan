@@ -7,11 +7,10 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-
     @Override
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("/fxml/main_view.fxml"));
-        primaryStage.setTitle("Face Scan");
+        primaryStage.setTitle("FaceScan");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
     }

@@ -1,13 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.control.Button?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.faceScan.controller.MainController" prefWidth="800" prefHeight="600">
+<AnchorPane stylesheets="@/styles/style.css" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.faceScan.controller.MainController"
+            prefWidth="800" prefHeight="600">
+
     <children>
-        <ImageView fx:id="cameraView" fitWidth="640" fitHeight="480" layoutX="80" layoutY="50" preserveRatio="true"/>
-        <Button fx:id="startButton" text="Start kamera" onAction="#onStartClicked" layoutX="350" layoutY="550"/>
-        <Button fx:id="stopButton" text="Stop kamera" onAction="#onStopClicked" layoutX="350" layoutY="550"/>
+        <ImageView fx:id="cameraView" styleClass="image-view"
+                   fitWidth="640" fitHeight="480"
+                   layoutX="80" layoutY="50"
+                   preserveRatio="true"/>
+
+        <Button fx:id="startButton" text="Start" styleClass="start-button"
+                layoutX="350" layoutY="550"
+                onAction="#onStartClicked"/>
+
+        <Button fx:id="stopButton" text="Stop" styleClass="stop-button"
+                layoutX="350" layoutY="550"
+                onAction="#onStopClicked"/>
+
+        <Label fx:id="countLabel" text="Wykryto: 0" styleClass="label"
+               layoutX="80" layoutY="20"/>
     </children>
 </AnchorPane>

@@ -3,6 +3,7 @@ package com.faceScan.controller;
 import com.faceScan.iface.IFaceDetector;
 import com.faceScan.iface.IFaceRecognizer;
 import com.faceScan.model.FaceDetector;
+import com.faceScan.model.FaceRecognizer;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -15,6 +16,10 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.core.CvType;
 import org.opencv.imgcodecs.Imgcodecs;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.control.Label;
+import org.opencv.core.MatOfRect;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
@@ -26,6 +31,7 @@ public class MainController {
     private final IFaceDetector detector = new FaceDetector();
     private final IFaceRecognizer recognizer = new FaceRecognizer();
 
+    @FXML private Label countLabel;
 
     @FXML
     private Button startButton;
@@ -49,10 +55,10 @@ public class MainController {
     private void onStartClicked() {
         startButton.setVisible(false);
         stopButton.setVisible(true);
+
         if (camera == null) {
             camera = new VideoCapture(0);
         }
-
         if (!camera.isOpened()) {
             System.out.println("Nie udało się otworzyć kamery");
             return;
@@ -64,15 +70,25 @@ public class MainController {
             public void run() {
                 Mat frame = new Mat();
                 if (camera.read(frame)) {
-                    Image imageToShow = mat2Image(frame);
-                    Platform.runLater(() -> cameraView.setImage(imageToShow));
+                    Mat processed = detector.detectFace(frame);
+
+                    MatOfRect faces = new MatOfRect();
+                    detector.getFaceCascade().detectMultiScale(frame, faces);
+                    int count = faces.toArray().length;
+
+                    Image fxImage = mat2Image(processed);
+                    Platform.runLater(() -> {
+                        cameraView.setImage(fxImage);
+                        countLabel.setText("Wykryto: " + count + (count == 1 ? " twarz" : " twarzy"));
+                    });
                 }
             }
-        }, 0, 33); // ok. 30 FPS
+        }, 0, 33);  // co ~33ms, czyli ~30 FPS
 
-        startButton.setDisable(true);  // blokujemy start
-        stopButton.setDisable(false);  // odblokowujemy stop
+        startButton.setDisable(true);
+        stopButton.setDisable(false);
     }
+
 
 
     private Image mat2Image(Mat frame) {
@@ -122,6 +138,7 @@ public class MainController {
     public void initialize() {
         stopButton.setVisible(false);
         startButton.setVisible(true);
+        countLabel.setText("Wykryto: 0 twarzy");
     }
 
 
