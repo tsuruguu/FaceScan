@@ -12,14 +12,9 @@ import javafx.scene.image.ImageView;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
-import org.opencv.imgproc.Imgproc;
-import org.opencv.core.CvType;
-import org.opencv.imgcodecs.Imgcodecs;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.control.Label;
 import org.opencv.core.MatOfRect;
-import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
@@ -46,7 +41,6 @@ public class MainController {
     private Timer timer;
 
     static {
-        // Załaduj bibliotekę OpenCV (tylko raz)
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
     }
 
@@ -83,7 +77,7 @@ public class MainController {
                     });
                 }
             }
-        }, 0, 33);  // co ~33ms, czyli ~30 FPS
+        }, 0, 33);
 
         startButton.setDisable(true);
         stopButton.setDisable(false);
