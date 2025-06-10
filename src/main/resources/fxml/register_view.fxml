@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="10" alignment="CENTER" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.faceScan.controller.RegisterController">
+    <Label text="Rejestracja"/>
+    <TextField fx:id="usernameField" promptText="Nazwa użytkownika"/>
+    <PasswordField fx:id="passwordField" promptText="Hasło"/>
+    <PasswordField fx:id="confirmPasswordField" promptText="Powtórz hasło"/>
+    <Label fx:id="messageLabel" style="-fx-text-fill: red;"/>
+    <Button text="Zarejestruj się" onAction="#onRegister"/>
+    <Button text="Wróć do logowania" onAction="#goToLogin"/>
+</VBox>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="10" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.faceScan.controller.GroupController">
+    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+    <Label fx:id="groupNameLabel" text="Nazwa grupy" />
+
+    <TableView fx:id="studentsTable">
+        <columns>
+            <TableColumn fx:id="colId" text="ID" />
+            <TableColumn fx:id="colFirstName" text="Imię" />
+            <TableColumn fx:id="colLastName" text="Nazwisko" />
+            <TableColumn fx:id="colPhoto" text="Zdjęcie" />
+        </columns>
+    </TableView>
+    <Button text="Wybierz zdjęcie" onAction="#handleSelectPhoto" />
+    <Button text="Dodaj studenta" onAction="#handleAddStudent" />
+    <Button text="Usuń studenta" onAction="#handleDeleteStudent" />
+
+
+    <HBox spacing="10">
+        <TextField fx:id="firstNameField" promptText="Imię" />
+        <TextField fx:id="lastNameField" promptText="Nazwisko" />
+        <Label fx:id="photoPathLabel" text="Brak zdjęcia" />
+    </HBox>
+</VBox>

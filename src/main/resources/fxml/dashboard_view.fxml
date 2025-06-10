@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox spacing="10" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.faceScan.controller.DashboardController">
+    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+    <ListView fx:id="groupListView" prefHeight="300" onMouseClicked="#onGroupSelected" />
+
+    <HBox spacing="10">
+        <TextField fx:id="groupNameField" promptText="Nazwa grupy" />
+        <Button text="Dodaj grupę" onAction="#onAddGroup" />
+        <Button text="Usuń grupę" onAction="#onDeleteGroup" />
+    </HBox>
+</VBox>

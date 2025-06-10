@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="10" alignment="CENTER" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.faceScan.controller.LoginController">
+    <Label text="Logowanie"/>
+    <TextField fx:id="usernameField" promptText="Nazwa użytkownika"/>
+    <PasswordField fx:id="passwordField" promptText="Hasło"/>
+    <Label fx:id="messageLabel" style="-fx-text-fill: red;"/>
+    <Button text="Zaloguj" onAction="#onLogin"/>
+    <Button text="Przejdź do rejestracji" onAction="#goToRegister"/>
+</VBox>
