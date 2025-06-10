@@ -1,25 +1,37 @@
 package com.faceScan.controller;
 
+import com.faceScan.dao.GroupDAO;
+import com.faceScan.model.Group;
+import com.faceScan.model.User;
+import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.stage.Stage;
+import javafx.stage.Modality;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfRect;
+import org.opencv.videoio.VideoCapture;
+
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import com.faceScan.iface.IFaceDetector;
 import com.faceScan.iface.IFaceRecognizer;
 import com.faceScan.model.FaceDetector;
 import com.faceScan.model.FaceRecognizer;
-import javafx.application.Platform;
-import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.videoio.VideoCapture;
-import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.control.Label;
-import org.opencv.core.MatOfRect;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class MainController {
 
@@ -27,28 +39,36 @@ public class MainController {
     private final IFaceRecognizer recognizer = new FaceRecognizer();
 
     @FXML private Label countLabel;
-
-    @FXML
-    private Button startButton;
-
-    @FXML
-    private Button stopButton;
-
-    @FXML
-    private ImageView cameraView;
+    @FXML private Button startButton;
+    @FXML private Button stopButton;
+    @FXML private ImageView cameraView;
+    @FXML private ListView<Group> groupListView;
+    @FXML private Button addGroupButton;
+    @FXML private Button deleteGroupButton;
 
     private VideoCapture camera;
     private Timer timer;
+    private User currentUser;
 
     static {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
     }
 
+    public void setCurrentUser(User user) {
+        this.currentUser = user;
+        loadGroups();
+    }
+
+    private void loadGroups() {
+        if (currentUser == null) return;
+        List<Group> groups = GroupDAO.getGroupsByUserId(currentUser.getId());
+        groupListView.getItems().setAll(groups);
+    }
 
     @FXML
     private void onStartClicked() {
-        startButton.setVisible(false);
-        stopButton.setVisible(true);
+        startButton.setDisable(true);
+        stopButton.setDisable(false);
 
         if (camera == null) {
             camera = new VideoCapture(0);
@@ -65,7 +85,6 @@ public class MainController {
                 Mat frame = new Mat();
                 if (camera.read(frame)) {
                     Mat processed = detector.detectFace(frame);
-
                     MatOfRect faces = new MatOfRect();
                     detector.getFaceCascade().detectMultiScale(frame, faces);
                     int count = faces.toArray().length;
@@ -78,12 +97,7 @@ public class MainController {
                 }
             }
         }, 0, 33);
-
-        startButton.setDisable(true);
-        stopButton.setDisable(false);
     }
-
-
 
     private Image mat2Image(Mat frame) {
         try {
@@ -112,8 +126,9 @@ public class MainController {
 
     @FXML
     private void onStopClicked() {
-        startButton.setVisible(true);
-        stopButton.setVisible(false);
+        startButton.setDisable(false);
+        stopButton.setDisable(true);
+
         if (timer != null) {
             timer.cancel();
             timer = null;
@@ -123,17 +138,62 @@ public class MainController {
             System.out.println("Kamera zamknięta");
         }
         Platform.runLater(() -> cameraView.setImage(null));
-
-        startButton.setDisable(false);  // odblokowujemy start
-        stopButton.setDisable(true);    // blokujemy stop
     }
 
     @FXML
-    public void initialize() {
-        stopButton.setVisible(false);
-        startButton.setVisible(true);
-        countLabel.setText("Wykryto: 0 twarzy");
+    private void onAddGroupClicked() {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Nowa Grupa");
+        dialog.setHeaderText("Podaj nazwę nowej grupy:");
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(name -> {
+            Group newGroup = new Group(name, currentUser.getId());
+            GroupDAO.save(newGroup);
+            loadGroups();
+        });
     }
 
+    @FXML
+    private void onDeleteGroupClicked() {
+        Group selected = groupListView.getSelectionModel().getSelectedItem();
+        if (selected != null) {
+            GroupDAO.delete(selected.getId());
+            loadGroups();
+        }
+    }
 
+    @FXML
+    private void initialize() {
+        stopButton.setDisable(true);
+        startButton.setDisable(false);
+        countLabel.setText("Wykryto: 0 twarzy");
+
+        groupListView.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                Group selected = groupListView.getSelectionModel().getSelectedItem();
+                if (selected != null) {
+                    openGroupView(selected);
+                }
+            }
+        });
+    }
+
+    private void openGroupView(Group group) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/group_view.fxml"));
+            Parent root = loader.load();
+
+            GroupController controller = loader.getController();
+            controller.setGroup(group.getId(), group.getName());
+
+            Stage stage = new Stage();
+            stage.setTitle("Grupa: " + group.getName());
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(new Scene(root));
+            stage.showAndWait();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
