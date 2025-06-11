@@ -22,6 +22,7 @@
     <Button text="Dodaj studenta" onAction="#handleAddStudent" />
     <Button text="Usuń studenta" onAction="#handleDeleteStudent" />
 
+    <Button text="Sprawdź obecność" onAction="#handleCheckAttendance" maxWidth="Infinity"/>
 
     <HBox spacing="10">
         <TextField fx:id="firstNameField" promptText="Imię" />

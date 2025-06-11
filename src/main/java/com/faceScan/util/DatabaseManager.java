@@ -8,13 +8,13 @@ import java.sql.Statement;
 public class DatabaseManager {
 
     private static DatabaseManager instance;
-    private static final String URL = "jdbc:sqlite:face_scan.db"; // Plik SQLite w katalogu projektu
+    private static final String URL = "jdbc:sqlite:face_scan.db";
 
     static {
         try {
-            // Automatyczne tworzenie tabel, jeśli nie istnieją
             try (Connection conn = getConnection()) {
                 Statement stmt = conn.createStatement();
+
                 stmt.execute("CREATE TABLE IF NOT EXISTS users (" +
                         "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                         "username TEXT UNIQUE NOT NULL," +
@@ -32,6 +32,7 @@ public class DatabaseManager {
                         "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                         "first_name TEXT NOT NULL," +
                         "last_name TEXT NOT NULL," +
+                        "photo_path TEXT," +
                         "group_id INTEGER NOT NULL," +
                         "FOREIGN KEY(group_id) REFERENCES groups(id)" +
                         ");");
@@ -49,9 +50,7 @@ public class DatabaseManager {
     }
 
     public static synchronized DatabaseManager getInstance() {
-        if (instance == null) {
-            instance = new DatabaseManager();
-        }
+        if (instance == null) instance = new DatabaseManager();
         return instance;
     }
 
@@ -62,5 +61,5 @@ public class DatabaseManager {
         }
         return conn;
     }
-
 }
+

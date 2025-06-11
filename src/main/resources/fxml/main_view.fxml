@@ -5,6 +5,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
+<?import javafx.scene.control.ListView?>
 <AnchorPane stylesheets="@/styles/style.css" xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.faceScan.controller.MainController"
             prefWidth="800" prefHeight="600">
@@ -25,5 +26,8 @@
 
         <Label fx:id="countLabel" text="Wykryto: 0" styleClass="label"
                layoutX="80" layoutY="20"/>
+
+        <ListView fx:id="groupListView" prefHeight="150" prefWidth="200" />
+
     </children>
 </AnchorPane>

@@ -5,10 +5,16 @@ import com.faceScan.model.Student;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
@@ -43,6 +49,34 @@ public class GroupController {
         colLastName.setCellValueFactory(c -> c.getValue().lastNameProperty());
         colPhoto.setCellValueFactory(c -> c.getValue().photoPathProperty());
         studentsTable.setItems(students);
+        studentsTable.setRowFactory(tv -> {
+            TableRow<Student> row = new TableRow<>();
+            row.setOnMouseClicked(evt -> {
+                if (evt.getClickCount() == 2 && !row.isEmpty()) {
+                    Student s = row.getItem();
+                    try {
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/StudentDetails.fxml"));
+                        Parent root = loader.load();
+                        StudentDetailsController ctrl = loader.getController();
+                        ctrl.setStudent(s);
+
+                        Stage dialog = new Stage();
+                        dialog.initOwner(studentsTable.getScene().getWindow());
+                        dialog.initModality(Modality.APPLICATION_MODAL);
+                        dialog.setTitle("Szczegóły studenta");
+                        dialog.setScene(new Scene(root));
+                        dialog.showAndWait();
+
+                        loadStudents();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        new Alert(Alert.AlertType.ERROR, "Nie udało się otworzyć szczegółów").showAndWait();
+                    }
+                }
+            });
+            return row;
+        });
+
         photoPathLabel.setText("Brak zdjęcia");
     }
 
@@ -113,4 +147,32 @@ public class GroupController {
             }
         }
     }
+
+    @FXML
+    private void handleCheckAttendance() {
+        System.out.println(">>> handleCheckAttendance() wywołane!");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main_view.fxml"));
+            Parent root = loader.load();
+
+            System.out.println(">>> main_view.fxml załadowane, pobieram controller");
+            MainController mc = loader.getController();
+            mc.setCurrentGroupId(groupId);  // przekazujemy tylko groupId
+
+            Stage stage = (Stage) studentsTable.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Sprawdzanie obecności — " + groupNameLabel.getText());
+            stage.show();
+
+            System.out.println(">>> scena main_view ustawiona, uruchamiam kamerę");
+            mc.onStartClicked();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR,
+                    "Nie udało się otworzyć ekranu obecności.").showAndWait();
+        }
+    }
+
 }
+

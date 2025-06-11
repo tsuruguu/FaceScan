@@ -2,37 +2,66 @@ package com.faceScan.model;
 
 import com.faceScan.iface.IFaceRecognizer;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfInt;
 import org.opencv.face.LBPHFaceRecognizer;
+import org.opencv.imgcodecs.Imgcodecs;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class FaceRecognizer implements IFaceRecognizer {
-    private final LBPHFaceRecognizer recognizer;
-    private final Map<Integer, String> labelNameMap;
+    private LBPHFaceRecognizer recognizer;
+    private final List<Mat>       trainingImages  = new ArrayList<>();
+    private final List<Integer>   trainingLabels  = new ArrayList<>();
+    private final Map<Integer,String> labelNameMap = new HashMap<>();
 
     public FaceRecognizer() {
         System.loadLibrary(org.opencv.core.Core.NATIVE_LIBRARY_NAME);
-
-        this.recognizer=LBPHFaceRecognizer.create();
-        this.recognizer.read("trained_model.yml");
-
-        this.labelNameMap=new HashMap<>();
-        this.labelNameMap.put(1, "<UNK>");
-//        this.labelNameMap.put(2, "<UNK>");
+        this.recognizer = LBPHFaceRecognizer.create();
     }
 
     @Override
-    public String recognizeFace(Mat face) {
-        if(face==null) return null;
+    public void clearTraining() {
+        trainingImages.clear();
+        trainingLabels.clear();
+        labelNameMap.clear();
+        recognizer = LBPHFaceRecognizer.create();
+    }
 
-        int[] label=new int[1];
-        double[] confidence=new double[1];
+    @Override
+    public void addTrainingSample(int label, String imagePath) {
+        Mat img = Imgcodecs.imread(imagePath, Imgcodecs.IMREAD_GRAYSCALE);
+        if (!img.empty()) {
+            trainingImages.add(img);
+            trainingLabels.add(label);
+            labelNameMap.putIfAbsent(label, imagePath);
+        }
+    }
 
-        recognizer.predict(face, label, confidence);
+    @Override
+    public void trainModel() {
+        if (trainingImages.isEmpty()) return;
+        MatOfInt labelsMat = new MatOfInt();
+        labelsMat.fromList(trainingLabels);       // <-- instance method
+        recognizer.train(trainingImages, labelsMat);
+    }
 
-        if(confidence[0]<80.0) return labelNameMap.getOrDefault(label[0], "<UNK>");
-
+    @Override
+    public Integer recognizeFace(Mat face) {
+        if (trainingImages.isEmpty()) return null;
+        int[]   labelArr      = new int[1];
+        double[] confidenceArr = new double[1];
+        recognizer.predict(face, labelArr, confidenceArr);
+        if (confidenceArr[0] < 80.0) {
+            return labelArr[0];
+        }
         return null;
+    }
+
+    @Override
+    public void saveModel(String filePath) {
+        recognizer.write(filePath);
     }
 }

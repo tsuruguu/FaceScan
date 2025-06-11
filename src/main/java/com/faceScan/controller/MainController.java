@@ -1,8 +1,8 @@
 package com.faceScan.controller;
 
 import com.faceScan.dao.GroupDAO;
-import com.faceScan.model.Group;
-import com.faceScan.model.User;
+import com.faceScan.dao.StudentDAO;
+import com.faceScan.model.*;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
@@ -22,6 +22,7 @@ import org.opencv.videoio.VideoCapture;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Timer;
@@ -29,8 +30,6 @@ import java.util.TimerTask;
 
 import com.faceScan.iface.IFaceDetector;
 import com.faceScan.iface.IFaceRecognizer;
-import com.faceScan.model.FaceDetector;
-import com.faceScan.model.FaceRecognizer;
 
 
 public class MainController {
@@ -46,9 +45,11 @@ public class MainController {
     @FXML private Button addGroupButton;
     @FXML private Button deleteGroupButton;
 
+
     private VideoCapture camera;
     private Timer timer;
     private User currentUser;
+    private int currentGroupId;
 
     static {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
@@ -59,6 +60,7 @@ public class MainController {
         loadGroups();
     }
 
+
     private void loadGroups() {
         if (currentUser == null) return;
         List<Group> groups = GroupDAO.getGroupsByUserId(currentUser.getId());
@@ -66,7 +68,7 @@ public class MainController {
     }
 
     @FXML
-    private void onStartClicked() {
+    void onStartClicked() {
         startButton.setDisable(true);
         stopButton.setDisable(false);
 
@@ -196,4 +198,27 @@ public class MainController {
             e.printStackTrace();
         }
     }
+
+    private void loadStudentsForGroup(int groupId) {
+        StudentDAO dao = new StudentDAO();
+        List<Student> list;
+        try {
+            list = dao.getStudentsByGroupId(groupId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return;
+        }
+        recognizer.clearTraining();             // wyczyść stare próbki
+        for (Student s : list) {
+            if (!s.getPhotoPath().isBlank()) {
+                recognizer.addTrainingSample(s.getId(), s.getPhotoPath());
+            }
+        }
+    }
+
+    public void setCurrentGroupId(int groupId) {
+        this.currentGroupId = groupId;
+        loadStudentsForGroup(groupId);
+    }
+
 }
