@@ -2,6 +2,7 @@ package com.faceScan.controller;
 
 import com.faceScan.dao.UserDAO;
 import com.faceScan.model.User;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -14,44 +15,60 @@ public class RegisterController {
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
     @FXML private PasswordField confirmPasswordField;
+    @FXML private TextField firstNameField;
+    @FXML private TextField lastNameField;
+    @FXML private TextField roleField;
     @FXML private Label messageLabel;
 
     private final UserDAO userDAO = new UserDAO();
 
     @FXML
     private void onRegister() {
-        String username = usernameField.getText();
+        String username = usernameField.getText().trim();
         String password = passwordField.getText();
         String confirmPassword = confirmPasswordField.getText();
+        String firstName = firstNameField.getText().trim();
+        String lastName = lastNameField.getText().trim();
+        String role = roleField.getText().trim().toLowerCase();
 
-        if (username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-            messageLabel.setStyle("-fx-text-fill: red;");
-            messageLabel.setText("Wypełnij wszystkie pola!");
+        if (username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()
+                || firstName.isEmpty() || lastName.isEmpty() || role.isEmpty()) {
+            showMessage("Fill in all fields!", "red");
             return;
         }
 
         if (!password.equals(confirmPassword)) {
-            messageLabel.setStyle("-fx-text-fill: red;");
-            messageLabel.setText("Hasła się nie zgadzają!");
+            showMessage("Passwords do not match!", "red");
             return;
         }
 
-        boolean success = userDAO.registerUser(new User(username, password));
-        if (success) {
-            messageLabel.setStyle("-fx-text-fill: green;");
-            messageLabel.setText("Konto utworzone! Przechodzę do logowania...");
+        if (!role.equals("student") && !role.equals("professor")) {
+            showMessage("The role must be 'student' or 'professor", "red");
+            return;
+        }
 
-            // Mała pauza na przeczytanie komunikatu (opcjonalnie)
+        User user = new User(username, password, role, firstName, lastName);
+        boolean success = userDAO.registerUser(user);
+
+        if (success) {
+            showMessage("Account created! Redirect to login...", "green");
+
+            usernameField.clear();
+            passwordField.clear();
+            confirmPasswordField.clear();
+            firstNameField.clear();
+            lastNameField.clear();
+            roleField.clear();
+
             new Thread(() -> {
                 try {
                     Thread.sleep(1500);
                 } catch (InterruptedException ignored) {}
-                javafx.application.Platform.runLater(() -> goToLogin());
+                Platform.runLater(this::goToLogin);
             }).start();
-
         } else {
-            messageLabel.setStyle("-fx-text-fill: red;");
-            messageLabel.setText("Rejestracja nie powiodła się - sprawdź nazwę użytkownika.");
+            showMessage("\n" +
+                    "Registration failed (login taken?)", "red");
         }
     }
 
@@ -62,9 +79,15 @@ public class RegisterController {
             Parent root = loader.load();
             Stage stage = (Stage) usernameField.getScene().getWindow();
             stage.setScene(new Scene(root));
-            stage.setTitle("FaceScan - Logowanie");
+            stage.setTitle("FaceScan - Login");
         } catch (Exception e) {
             e.printStackTrace();
+            showMessage("Error loading login view", "red");
         }
+    }
+
+    private void showMessage(String text, String color) {
+        messageLabel.setStyle("-fx-text-fill: " + color + ";");
+        messageLabel.setText(text);
     }
 }

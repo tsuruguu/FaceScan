@@ -15,33 +15,41 @@ public class DatabaseManager {
             try (Connection conn = getConnection()) {
                 Statement stmt = conn.createStatement();
 
+                stmt.execute("PRAGMA foreign_keys = ON;");
+
                 stmt.execute("CREATE TABLE IF NOT EXISTS users (" +
                         "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                         "username TEXT UNIQUE NOT NULL," +
-                        "password TEXT NOT NULL" +
+                        "password TEXT NOT NULL," +
+                        "role TEXT NOT NULL," +
+                        "first_name TEXT NOT NULL," +
+                        "last_name TEXT NOT NULL," +
+                        "photo_path TEXT" +
                         ");");
 
                 stmt.execute("CREATE TABLE IF NOT EXISTS groups (" +
                         "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                         "name TEXT NOT NULL," +
-                        "user_id INTEGER NOT NULL," +
-                        "FOREIGN KEY(user_id) REFERENCES users(id)" +
+                        "professor_id INTEGER NOT NULL," +
+                        "FOREIGN KEY(professor_id) REFERENCES users(id)" +
                         ");");
 
-                stmt.execute("CREATE TABLE IF NOT EXISTS students (" +
-                        "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                        "first_name TEXT NOT NULL," +
-                        "last_name TEXT NOT NULL," +
-                        "photo_path TEXT," +
+                stmt.execute("CREATE TABLE IF NOT EXISTS group_members (" +
                         "group_id INTEGER NOT NULL," +
-                        "FOREIGN KEY(group_id) REFERENCES groups(id)" +
+                        "student_id INTEGER NOT NULL," +
+                        "PRIMARY KEY (group_id, student_id)," +
+                        "FOREIGN KEY(group_id) REFERENCES groups(id)," +
+                        "FOREIGN KEY(student_id) REFERENCES users(id)" +
                         ");");
 
                 stmt.execute("CREATE TABLE IF NOT EXISTS attendance (" +
                         "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                         "student_id INTEGER NOT NULL," +
-                        "timestamp TEXT NOT NULL," +
-                        "FOREIGN KEY(student_id) REFERENCES students(id)" +
+                        "group_id INTEGER NOT NULL," +
+                        "date TEXT NOT NULL," +
+                        "present BOOLEAN NOT NULL," +
+                        "FOREIGN KEY(student_id) REFERENCES users(id)," +
+                        "FOREIGN KEY(group_id) REFERENCES groups(id)" +
                         ");");
             }
         } catch (SQLException e) {
@@ -61,5 +69,10 @@ public class DatabaseManager {
         }
         return conn;
     }
+
+    public static void init() {
+        getInstance();
+    }
+
 }
 

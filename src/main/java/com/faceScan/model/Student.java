@@ -3,11 +3,15 @@ package com.faceScan.model;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Student {
     private final SimpleIntegerProperty id;
     private final SimpleStringProperty firstName;
     private final SimpleStringProperty lastName;
     private final SimpleStringProperty photoPath;
+    private final List<Group> groups = new ArrayList<>();
 
     public Student(int id, String firstName, String lastName, String photoPath) {
         this.id = new SimpleIntegerProperty(id);
@@ -33,4 +37,12 @@ public class Student {
     public String toString() {
         return firstName.get() + " " + lastName.get();
     }
+
+    public static Student fromUser(User user) {
+        return new Student(user.getId(), user.getFirstName(), user.getLastName(), user.getPhotoPath());
+    }
+
+    public List<Group> getGroups() {return groups;}
+
+    public void addGroup(Group group) {groups.add(group);}
 }

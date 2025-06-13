@@ -1,7 +1,10 @@
 package com.faceScan.controller;
 
-import com.faceScan.dao.StudentDAO;
-import com.faceScan.model.Student;
+import com.faceScan.dao.GroupMemberDAO;
+import com.faceScan.dao.UserDAO;
+import com.faceScan.model.User;
+
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -15,164 +18,188 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.sql.SQLException;
 import java.util.List;
 
 public class GroupController {
+
     @FXML private Label groupNameLabel;
+    @FXML private ComboBox<User> studentComboBox;
+    @FXML private TableView<User> studentsTable;
+    @FXML private TableColumn<User, String> colFirstName;
+    @FXML private TableColumn<User, String> colLastName;
+    @FXML private Label photoPathLabel;
     @FXML private TextField firstNameField;
     @FXML private TextField lastNameField;
-    @FXML private Label photoPathLabel;
-    @FXML private TableView<Student> studentsTable;
-    @FXML private TableColumn<Student, Number> colId;
-    @FXML private TableColumn<Student, String> colFirstName;
-    @FXML private TableColumn<Student, String> colLastName;
-    @FXML private TableColumn<Student, String> colPhoto;
+
 
     private int groupId;
-    private String photoFilePath;
-    private final ObservableList<Student> students = FXCollections.observableArrayList();
-    private final StudentDAO studentDAO = new StudentDAO();
+    private final ObservableList<User> students = FXCollections.observableArrayList();
+
+    private final GroupMemberDAO groupMemberDAO = new GroupMemberDAO();
+    private final UserDAO userDAO = new UserDAO();
 
     public void setGroup(int groupId, String groupName) {
         this.groupId = groupId;
-        groupNameLabel.setText("Grupa: " + groupName);
+        groupNameLabel.setText("Group: " + groupName);
         loadStudents();
     }
 
     @FXML
     public void initialize() {
-        colId.setCellValueFactory(c -> c.getValue().idProperty());
-        colFirstName.setCellValueFactory(c -> c.getValue().firstNameProperty());
-        colLastName.setCellValueFactory(c -> c.getValue().lastNameProperty());
-        colPhoto.setCellValueFactory(c -> c.getValue().photoPathProperty());
+        colFirstName.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getFirstName()));
+        colLastName.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getLastName()));
         studentsTable.setItems(students);
+
         studentsTable.setRowFactory(tv -> {
-            TableRow<Student> row = new TableRow<>();
+            TableRow<User> row = new TableRow<>();
+
             row.setOnMouseClicked(evt -> {
                 if (evt.getClickCount() == 2 && !row.isEmpty()) {
-                    Student s = row.getItem();
+                    User u = row.getItem();
                     try {
                         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/StudentDetails.fxml"));
                         Parent root = loader.load();
                         StudentDetailsController ctrl = loader.getController();
-                        ctrl.setStudent(s);
+                        ctrl.setUser(u);
 
                         Stage dialog = new Stage();
                         dialog.initOwner(studentsTable.getScene().getWindow());
                         dialog.initModality(Modality.APPLICATION_MODAL);
-                        dialog.setTitle("Szczegóły studenta");
+                        dialog.setTitle("Student details.");
                         dialog.setScene(new Scene(root));
                         dialog.showAndWait();
 
                         loadStudents();
                     } catch (IOException e) {
                         e.printStackTrace();
-                        new Alert(Alert.AlertType.ERROR, "Nie udało się otworzyć szczegółów").showAndWait();
+                        new Alert(Alert.AlertType.ERROR, "Could not open details.").showAndWait();
                     }
                 }
             });
+
+            ContextMenu menu = new ContextMenu();
+            MenuItem remove = new MenuItem("Delete student from group.");
+            remove.setOnAction(e -> {
+                User u = row.getItem();
+                if (groupMemberDAO.removeStudentFromGroup(u.getId(), groupId)) {
+                    loadStudents();
+                } else {
+                    new Alert(Alert.AlertType.ERROR, "Failed to delete student from group.").showAndWait();
+                }
+            });
+            menu.getItems().add(remove);
+            row.contextMenuProperty().bind(
+                    javafx.beans.binding.Bindings.when(row.emptyProperty())
+                            .then((ContextMenu) null)
+                            .otherwise(menu)
+            );
+
             return row;
         });
 
-        photoPathLabel.setText("Brak zdjęcia");
+        studentComboBox.setItems(FXCollections.observableArrayList(userDAO.getAllStudents()));
     }
 
     private void loadStudents() {
-        try {
-            List<Student> list = studentDAO.getStudentsByGroupId(groupId);
-            students.setAll(list);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        List<User> list = userDAO.getAllStudents();
+        List<User> inGroup = list.stream()
+                .filter(u -> groupMemberDAO.getGroupsForStudent(u.getId())
+                        .stream().anyMatch(g -> g.getId() == groupId))
+                .toList();
+
+        students.setAll(inGroup);
     }
 
     @FXML
     private void handleSelectPhoto() {
-        FileChooser fc = new FileChooser();
-        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Obrazy", "*.jpg","*.png","*.jpeg"));
-        File sel = fc.showOpenDialog(studentsTable.getScene().getWindow());
-        if (sel != null) {
-            photoFilePath = sel.getAbsolutePath();
-            photoPathLabel.setText(sel.getName());
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Wybierz zdjęcie");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Obrazy", "*.png", "*.jpg", "*.jpeg")
+        );
+
+        File file = fileChooser.showOpenDialog(studentsTable.getScene().getWindow());
+        if (file != null) {
+            photoPathLabel.setText(file.getAbsolutePath());
         }
     }
 
     @FXML
     private void handleAddStudent() {
-        String fn = firstNameField.getText().trim();
-        String ln = lastNameField.getText().trim();
-        if (fn.isEmpty() || ln.isEmpty()) {
-            new Alert(Alert.AlertType.ERROR, "Podaj imię i nazwisko").showAndWait();
+        String firstName = firstNameField.getText().trim();
+        String lastName = lastNameField.getText().trim();
+        String photoPath = photoPathLabel.getText().trim();
+
+        if (firstName.isEmpty() || lastName.isEmpty() || photoPath.equals("Brak zdjęcia")) {
+            new Alert(Alert.AlertType.WARNING, "Uzupełnij dane i wybierz zdjęcie.").showAndWait();
             return;
         }
 
-        String dst = null;
-        if (photoFilePath != null) {
-            try {
-                File src = new File(photoFilePath);
-                File dir = new File("student_photos");
-                if (!dir.exists()) dir.mkdir();
-                File t = new File(dir, System.currentTimeMillis()+"_"+src.getName());
-                Files.copy(src.toPath(), t.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                dst = t.getAbsolutePath();
-            } catch (Exception e) {
-                new Alert(Alert.AlertType.ERROR, "Błąd zapisu zdjęcia").showAndWait();
-                return;
-            }
+        User newUser = new User("s" + System.currentTimeMillis(), "pass", "student", firstName, lastName);
+        newUser.setPhotoPath(photoPath);
+        if (!userDAO.registerUser(newUser)) {
+            new Alert(Alert.AlertType.ERROR, "Nie udało się dodać użytkownika.").showAndWait();
+            return;
         }
 
-        try {
-            studentDAO.addStudent(groupId, fn, ln, dst);
-            firstNameField.clear(); lastNameField.clear();
-            photoPathLabel.setText("Brak zdjęcia");
-            photoFilePath = null;
+        User created = userDAO.getUserByUsername(newUser.getUsername());
+        if (created != null && groupMemberDAO.addStudentToGroup(created.getId(), groupId)) {
             loadStudents();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } else {
+            new Alert(Alert.AlertType.ERROR, "Nie udało się dodać studenta do grupy.").showAndWait();
         }
     }
 
     @FXML
     private void handleDeleteStudent() {
-        Student sel = studentsTable.getSelectionModel().getSelectedItem();
-        if (sel != null) {
-            try {
-                studentDAO.deleteStudent(sel.getId());
-                loadStudents();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+        User selected = studentsTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            new Alert(Alert.AlertType.INFORMATION, "Zaznacz studenta do usunięcia.").showAndWait();
+            return;
+        }
+
+        boolean success = groupMemberDAO.removeStudentFromGroup(selected.getId(), groupId);
+        if (success) {
+            loadStudents();
+        } else {
+            new Alert(Alert.AlertType.ERROR, "Nie udało się usunąć studenta z grupy.").showAndWait();
+        }
+    }
+
+    @FXML
+    private void handleAddExistingStudent() {
+        User selected = studentComboBox.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            new Alert(Alert.AlertType.WARNING, "Wybierz studenta z listy.").showAndWait();
+            return;
+        }
+
+        if (groupMemberDAO.addStudentToGroup(selected.getId(), groupId)) {
+            loadStudents();
+        } else {
+            new Alert(Alert.AlertType.ERROR, "Nie udało się dodać studenta do grupy.").showAndWait();
         }
     }
 
     @FXML
     private void handleCheckAttendance() {
-        System.out.println(">>> handleCheckAttendance() wywołane!");
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main_view.fxml"));
             Parent root = loader.load();
 
-            System.out.println(">>> main_view.fxml załadowane, pobieram controller");
             MainController mc = loader.getController();
-            mc.setCurrentGroupId(groupId);  // przekazujemy tylko groupId
+            mc.setCurrentGroupId(groupId);
 
             Stage stage = (Stage) studentsTable.getScene().getWindow();
             stage.setScene(new Scene(root));
-            stage.setTitle("Sprawdzanie obecności — " + groupNameLabel.getText());
+            stage.setTitle("Checking attendance – Group");
             stage.show();
 
-            System.out.println(">>> scena main_view ustawiona, uruchamiam kamerę");
             mc.onStartClicked();
 
         } catch (IOException e) {
             e.printStackTrace();
-            new Alert(Alert.AlertType.ERROR,
-                    "Nie udało się otworzyć ekranu obecności.").showAndWait();
+            new Alert(Alert.AlertType.ERROR, "Failed to open presence view.").showAndWait();
         }
     }
-
 }
-

@@ -2,6 +2,7 @@ package com.faceScan.controller;
 
 import com.faceScan.dao.UserDAO;
 import com.faceScan.model.User;
+import com.faceScan.session.SessionManager;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -21,81 +22,66 @@ public class LoginController {
     @FXML private PasswordField passwordField;
     @FXML private Label messageLabel;
     @FXML private PasswordField confirmPasswordField;
+    @FXML private TextField firstNameField;
+    @FXML private TextField lastNameField;
+    @FXML private TextField roleField;
 
     private final UserDAO userDAO = new UserDAO();
 
-
     @FXML
     private void onLogin() {
-        String username = usernameField.getText();
+        String username = usernameField.getText().trim();
         String password = passwordField.getText();
 
         if (username.isEmpty() || password.isEmpty()) {
-            messageLabel.setStyle("-fx-text-fill: red;");
-            messageLabel.setText("Wprowadź login i hasło.");
+            showMessage("Enter username and password!", "red");
             return;
         }
 
         User user = userDAO.loginUser(username, password);
 
         if (user != null) {
-            messageLabel.setStyle("-fx-text-fill: green;");
-            messageLabel.setText("Zalogowano pomyślnie!");
-
-            // Przejdź do dashboardu
+            SessionManager.login(user);
+            showMessage("Logged in successfully!", "green");
             openDashboard(user);
         } else {
-            messageLabel.setStyle("-fx-text-fill: red;");
-            messageLabel.setText("Niepoprawny login lub hasło.");
+            showMessage("Wrong username or password!", "red");
         }
     }
-
-    private void openDashboard() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/dashboard_view.fxml"));
-            Parent root = loader.load();
-
-//             DashboardController controller = loader.getController();
-//             controller.setUser(currentUser);
-
-            Stage stage = (Stage) usernameField.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("FaceScan - Dashboard");
-            stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-            messageLabel.setStyle("-fx-text-fill: red;");
-            messageLabel.setText("Błąd ładowania dashboardu.");
-        }
-    }
-
-
-
 
     @FXML
     private void onRegister() {
         String username = usernameField.getText().trim();
         String password = passwordField.getText();
         String confirmPassword = confirmPasswordField.getText();
+        String firstName = firstNameField.getText().trim();
+        String lastName = lastNameField.getText().trim();
+        String role = roleField.getText().trim().toLowerCase();
 
-        if (username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-            messageLabel.setText("Wypełnij wszystkie pola!");
+        if (username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()
+                || firstName.isEmpty() || lastName.isEmpty() || role.isEmpty()) {
+            showMessage("Fill in all fields!", "red");
             return;
         }
 
         if (!password.equals(confirmPassword)) {
-            messageLabel.setText("Hasła nie są takie same!");
+            showMessage("Passwords do not match!","red");
             return;
         }
 
-        User user = new User(username, password);
+        if (!role.equals("student") && !role.equals("professor")) {
+            showMessage("The role must be 'student' or 'professor'!", "red");
+            return;
+        }
+
+        User user = new User(username, password, role, firstName, lastName);
         boolean success = userDAO.registerUser(user);
 
         if (success) {
-            messageLabel.setText("Zarejestrowano! Możesz się teraz zalogować.");
+            showMessage("Zarejestrowano! Możesz się teraz zalogować.", "green");
             clearRegisterFields();
         } else {
-            messageLabel.setText("Rejestracja nie powiodła się.");
+            showMessage("Rejestracja nie powiodła się.", "red");
         }
     }
 
@@ -103,15 +89,15 @@ public class LoginController {
         usernameField.clear();
         passwordField.clear();
         confirmPasswordField.clear();
+        firstNameField.clear();
+        lastNameField.clear();
+        roleField.clear();
     }
 
     private void openDashboard(User user) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/dashboard_view.fxml"));
             Parent root = loader.load();
-
-            DashboardController dashboardController = loader.getController();
-            dashboardController.setCurrentUser(user);
 
             Stage stage = (Stage) usernameField.getScene().getWindow();
             stage.setScene(new Scene(root));
@@ -120,14 +106,14 @@ public class LoginController {
         } catch (Exception e) {
             e.printStackTrace();
             messageLabel.setStyle("-fx-text-fill: red;");
-            messageLabel.setText("Błąd ładowania dashboardu.");
+            messageLabel.setText("Dashboard Error");
         }
     }
 
 
-    public void setMessage(String message) {
-        messageLabel.setStyle("-fx-text-fill: green;");
-        messageLabel.setText(message);
+    private void showMessage(String text, String color) {
+        messageLabel.setStyle("-fx-text-fill: " + color + ";");
+        messageLabel.setText(text);
     }
 
     @FXML
@@ -137,12 +123,9 @@ public class LoginController {
             Parent root = loader.load();
             Stage stage = (Stage) usernameField.getScene().getWindow();
             stage.setScene(new Scene(root));
-            stage.setTitle("FaceScan - Rejestracja");
+            stage.setTitle("FaceScan - Register");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
-
-
 }

@@ -1,19 +1,23 @@
 package com.faceScan.controller;
 
 import com.faceScan.dao.GroupDAO;
-import com.faceScan.dao.StudentDAO;
+import com.faceScan.dao.GroupMemberDAO;
 import com.faceScan.model.*;
+import com.faceScan.iface.IFaceDetector;
+import com.faceScan.iface.IFaceRecognizer;
+
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.stage.Stage;
-import javafx.stage.Modality;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
@@ -22,15 +26,10 @@ import org.opencv.videoio.VideoCapture;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import com.faceScan.iface.IFaceDetector;
-import com.faceScan.iface.IFaceRecognizer;
-
 
 public class MainController {
 
@@ -45,11 +44,12 @@ public class MainController {
     @FXML private Button addGroupButton;
     @FXML private Button deleteGroupButton;
 
-
     private VideoCapture camera;
     private Timer timer;
     private User currentUser;
     private int currentGroupId;
+    private final GroupDAO groupDAO = new GroupDAO();
+
 
     static {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
@@ -60,11 +60,26 @@ public class MainController {
         loadGroups();
     }
 
-
     private void loadGroups() {
         if (currentUser == null) return;
         List<Group> groups = GroupDAO.getGroupsByUserId(currentUser.getId());
         groupListView.getItems().setAll(groups);
+    }
+
+    @FXML
+    public void initialize() {
+        stopButton.setDisable(true);
+        startButton.setDisable(false);
+        countLabel.setText("Detected: 0 faces.");
+
+        groupListView.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                Group selected = groupListView.getSelectionModel().getSelectedItem();
+                if (selected != null) {
+                    openGroupView(selected);
+                }
+            }
+        });
     }
 
     @FXML
@@ -76,7 +91,7 @@ public class MainController {
             camera = new VideoCapture(0);
         }
         if (!camera.isOpened()) {
-            System.out.println("Nie udało się otworzyć kamery");
+            System.out.println("Failed to open camera!");
             return;
         }
 
@@ -94,7 +109,7 @@ public class MainController {
                     Image fxImage = mat2Image(processed);
                     Platform.runLater(() -> {
                         cameraView.setImage(fxImage);
-                        countLabel.setText("Wykryto: " + count + (count == 1 ? " twarz" : " twarzy"));
+                        countLabel.setText("Detected: " + count + (count == 1 ? " face" : " faces"));
                     });
                 }
             }
@@ -106,7 +121,7 @@ public class MainController {
             BufferedImage bufferedImage = matToBufferedImage(frame);
             return SwingFXUtils.toFXImage(bufferedImage, null);
         } catch (Exception e) {
-            System.err.println("Błąd konwersji obrazu: " + e.getMessage());
+            System.err.println("Failed to convert image: " + e.getMessage());
             return null;
         }
     }
@@ -137,7 +152,7 @@ public class MainController {
         }
         if (camera != null && camera.isOpened()) {
             camera.release();
-            System.out.println("Kamera zamknięta");
+            System.out.println("Camera has been closed.");
         }
         Platform.runLater(() -> cameraView.setImage(null));
     }
@@ -145,12 +160,12 @@ public class MainController {
     @FXML
     private void onAddGroupClicked() {
         TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Nowa Grupa");
-        dialog.setHeaderText("Podaj nazwę nowej grupy:");
+        dialog.setTitle("New group");
+        dialog.setHeaderText("Enter the name od new group:");
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(name -> {
             Group newGroup = new Group(name, currentUser.getId());
-            GroupDAO.save(newGroup);
+            groupDAO.addGroup(newGroup);
             loadGroups();
         });
     }
@@ -159,25 +174,9 @@ public class MainController {
     private void onDeleteGroupClicked() {
         Group selected = groupListView.getSelectionModel().getSelectedItem();
         if (selected != null) {
-            GroupDAO.delete(selected.getId());
+            groupDAO.deleteGroup(selected.getId());
             loadGroups();
         }
-    }
-
-    @FXML
-    private void initialize() {
-        stopButton.setDisable(true);
-        startButton.setDisable(false);
-        countLabel.setText("Wykryto: 0 twarzy");
-
-        groupListView.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) {
-                Group selected = groupListView.getSelectionModel().getSelectedItem();
-                if (selected != null) {
-                    openGroupView(selected);
-                }
-            }
-        });
     }
 
     private void openGroupView(Group group) {
@@ -189,7 +188,7 @@ public class MainController {
             controller.setGroup(group.getId(), group.getName());
 
             Stage stage = new Stage();
-            stage.setTitle("Grupa: " + group.getName());
+            stage.setTitle("Group: " + group.getName());
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setScene(new Scene(root));
             stage.showAndWait();
@@ -199,26 +198,21 @@ public class MainController {
         }
     }
 
-    private void loadStudentsForGroup(int groupId) {
-        StudentDAO dao = new StudentDAO();
-        List<Student> list;
-        try {
-            list = dao.getStudentsByGroupId(groupId);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return;
-        }
-        recognizer.clearTraining();             // wyczyść stare próbki
-        for (Student s : list) {
-            if (!s.getPhotoPath().isBlank()) {
-                recognizer.addTrainingSample(s.getId(), s.getPhotoPath());
-            }
-        }
-    }
-
     public void setCurrentGroupId(int groupId) {
         this.currentGroupId = groupId;
         loadStudentsForGroup(groupId);
     }
 
+    private void loadStudentsForGroup(int groupId) {
+        GroupMemberDAO groupMemberDAO = new GroupMemberDAO();
+        List<Student> students = groupMemberDAO.getStudentsInGroup(groupId);
+
+        recognizer.clearTraining();
+        for (Student student : students) {
+            if (student.getPhotoPath() != null && !student.getPhotoPath().isBlank()) {
+                recognizer.addTrainingSample(student.getId(), student.getPhotoPath());
+            }
+        }
+
+    }
 }
