@@ -2,39 +2,53 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
 
-<VBox spacing="10" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.faceScan.controller.GroupController">
-    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+<StackPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.faceScan.controller.GroupController"
+           stylesheets="@/styles/style.css"
+           prefWidth="800" prefHeight="600"
+           style="-fx-background-color: #f9f9f9;">
 
-    <Label fx:id="groupNameLabel" text="Nazwa grupy" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+    <VBox spacing="15" alignment="CENTER" style="-fx-padding: 30;" maxWidth="700">
 
-    <TableView fx:id="studentsTable" prefHeight="250">
-        <columns>
-            <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
-            <TableColumn fx:id="colFirstName" text="Imię" prefWidth="150"/>
-            <TableColumn fx:id="colLastName" text="Nazwisko" prefWidth="150"/>
-            <TableColumn fx:id="colPhoto" text="Zdjęcie" prefWidth="250"/>
-        </columns>
-    </TableView>
+        <Region VBox.vgrow="ALWAYS"/>
 
-    <HBox spacing="10">
-        <ComboBox fx:id="studentComboBox" promptText="Wybierz studenta" />
-        <Button text="Dodaj wybranego" onAction="#handleAddExistingStudent"/>
-    </HBox>
+        <Label fx:id="groupNameLabel" text="Nazwa grupy"
+               style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
 
-    <HBox spacing="10">
-        <TextField fx:id="firstNameField" promptText="Imię" />
-        <TextField fx:id="lastNameField" promptText="Nazwisko" />
-        <Label fx:id="photoPathLabel" text="Brak zdjęcia" style="-fx-border-color: gray; -fx-padding: 4px;"/>
-        <Button text="Wybierz zdjęcie" onAction="#handleSelectPhoto"/>
-    </HBox>
+        <TableView fx:id="studentsTable" prefHeight="250" maxWidth="700">
+            <columns>
+                <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+                <TableColumn fx:id="colFirstName" text="Imię" prefWidth="150"/>
+                <TableColumn fx:id="colLastName" text="Nazwisko" prefWidth="150"/>
+                <TableColumn fx:id="colPhoto" text="Zdjęcie" prefWidth="250"/>
+            </columns>
+        </TableView>
 
-    <HBox spacing="10">
-        <Button text="Dodaj studenta" onAction="#handleAddStudent" />
-        <Button text="Usuń studenta" onAction="#handleDeleteStudent" />
-        <Region fx:id="spacer" HBox.hgrow="ALWAYS"/>
-        <Button text="Sprawdź obecność" onAction="#handleCheckAttendance" maxWidth="Infinity"/>
-    </HBox>
-</VBox>
+        <HBox spacing="10" alignment="CENTER_LEFT" maxWidth="700">
+            <ComboBox fx:id="studentComboBox" promptText="Wybierz studenta" maxWidth="450" HBox.hgrow="ALWAYS"/>
+            <Button text="Dodaj wybranego" onAction="#handleAddExistingStudent" styleClass="button" maxWidth="230"/>
+        </HBox>
+
+        <HBox spacing="10" alignment="CENTER_LEFT" maxWidth="700">
+            <TextField fx:id="firstNameField" promptText="Imię" styleClass="text-field" maxWidth="220"/>
+            <TextField fx:id="lastNameField" promptText="Nazwisko" styleClass="text-field" maxWidth="220"/>
+            <Label fx:id="photoPathLabel" text="Brak zdjęcia" style="-fx-border-color: gray; -fx-padding: 4px; -fx-background-color: #fff; -fx-background-radius: 6px;" maxWidth="140"/>
+            <Button text="Wybierz zdjęcie" onAction="#handleSelectPhoto" styleClass="button"/>
+        </HBox>
+
+        <HBox spacing="10" alignment="CENTER_LEFT" maxWidth="700" style="-fx-padding: 10 0 0 0;">
+            <Button text="Dodaj studenta" onAction="#handleAddStudent" styleClass="button"/>
+            <Button text="Usuń studenta" onAction="#handleDeleteStudent" styleClass="button"/>
+        </HBox>
+
+        <HBox spacing="10" alignment="CENTER_RIGHT" maxWidth="700" style="-fx-padding: 10 0 0 0;">
+            <Button text="Sprawdź obecność" onAction="#handleCheckAttendance" styleClass="button"/>
+        </HBox>
+
+        <Button fx:id="showHistoryBtn" layoutX="20" layoutY="420" text="Pokaż historię" onAction="#onShowHistory"/>
+
+        <Region VBox.vgrow="ALWAYS"/>
+
+    </VBox>
+</StackPane>

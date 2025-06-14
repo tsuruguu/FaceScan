@@ -1,20 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
 
 <VBox xmlns="http://javafx.com/javafx/8.0.171"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.faceScan.controller.StudentDetailsController"
-      spacing="10" alignment="CENTER" style="-fx-padding: 20;">
+      spacing="20" alignment="CENTER"
+      style="-fx-padding: 30; -fx-background-color: #ffffff;"
+      maxWidth="500">
 
-    <Label text="Imię i nazwisko:"/>
-    <Label fx:id="nameLabel"/>
+    <ImageView fx:id="photoView"
+               fitHeight="200"
+               fitWidth="200"
+               preserveRatio="true"
+               style="-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 2);
+                      -fx-border-color: #ddd;
+                      -fx-border-radius: 100;
+                      -fx-background-radius: 100;" />
 
-    <Label text="Login:"/>
-    <Label fx:id="usernameLabel"/>
+    <VBox spacing="5" alignment="CENTER_LEFT">
+        <Label text="Imię i nazwisko:" style="-fx-font-weight: bold;" />
+        <Label fx:id="nameLabel" style="-fx-font-size: 16px;" />
 
-    <Label text="Rola:"/>
-    <Label fx:id="roleLabel"/>
+        <Label text="Login:" style="-fx-font-weight: bold;" />
+        <Label fx:id="usernameLabel" style="-fx-font-size: 16px;" />
+
+        <Label text="Rola:" style="-fx-font-weight: bold;" />
+        <Label fx:id="roleLabel" style="-fx-font-size: 16px;" />
+    </VBox>
 
 </VBox>

@@ -5,6 +5,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfInt;
 import org.opencv.face.LBPHFaceRecognizer;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,21 +45,28 @@ public class FaceRecognizer implements IFaceRecognizer {
     public void trainModel() {
         if (trainingImages.isEmpty()) return;
         MatOfInt labelsMat = new MatOfInt();
-        labelsMat.fromList(trainingLabels);       // <-- instance method
+        labelsMat.fromList(trainingLabels);
         recognizer.train(trainingImages, labelsMat);
     }
 
     @Override
     public Integer recognizeFace(Mat face) {
         if (trainingImages.isEmpty()) return null;
-        int[]   labelArr      = new int[1];
+        int[] labelArr = new int[1];
         double[] confidenceArr = new double[1];
-        recognizer.predict(face, labelArr, confidenceArr);
+        Mat grayFace = new Mat();
+        if (face.channels() > 1) {
+            Imgproc.cvtColor(face, grayFace, Imgproc.COLOR_BGR2GRAY);
+        } else {
+            grayFace = face;
+        }
+        recognizer.predict(grayFace, labelArr, confidenceArr);
         if (confidenceArr[0] < 80.0) {
             return labelArr[0];
         }
         return null;
     }
+
 
     @Override
     public void saveModel(String filePath) {

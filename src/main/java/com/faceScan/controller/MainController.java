@@ -1,5 +1,6 @@
 package com.faceScan.controller;
 
+import com.faceScan.dao.AttendanceDAO;
 import com.faceScan.dao.GroupDAO;
 import com.faceScan.dao.GroupMemberDAO;
 import com.faceScan.model.*;
@@ -7,12 +8,16 @@ import com.faceScan.iface.IFaceDetector;
 import com.faceScan.iface.IFaceRecognizer;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Modality;
@@ -21,11 +26,13 @@ import javafx.stage.Stage;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
+import org.opencv.core.Rect;
 import org.opencv.videoio.VideoCapture;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Timer;
@@ -50,6 +57,12 @@ public class MainController {
     private int currentGroupId;
     private final GroupDAO groupDAO = new GroupDAO();
 
+    @FXML private TableView<StudentPresence> attendanceTable;
+    @FXML private TableColumn<StudentPresence, String> colFirstName;
+    @FXML private TableColumn<StudentPresence, String> colLastName;
+    @FXML private TableColumn<StudentPresence, Boolean> colPresent;
+
+    private final ObservableList<StudentPresence> studentPresenceList = FXCollections.observableArrayList();
 
     static {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
@@ -71,6 +84,16 @@ public class MainController {
         stopButton.setDisable(true);
         startButton.setDisable(false);
         countLabel.setText("Detected: 0 faces.");
+
+        colFirstName.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getFirstName()));
+        colLastName.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getLastName()));
+        colPresent.setCellValueFactory(data -> data.getValue().presentProperty());
+        colPresent.setCellFactory(CheckBoxTableCell.forTableColumn(colPresent));
+
+        attendanceTable.setItems(studentPresenceList);
+
+        attendanceTable.setEditable(true);
+        colPresent.setEditable(true);
 
         groupListView.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
@@ -102,8 +125,18 @@ public class MainController {
                 Mat frame = new Mat();
                 if (camera.read(frame)) {
                     Mat processed = detector.detectFace(frame);
+
                     MatOfRect faces = new MatOfRect();
                     detector.getFaceCascade().detectMultiScale(frame, faces);
+
+                    for (Rect rect : faces.toArray()) {
+                        Mat faceMat = new Mat(frame, rect);
+                        Integer recognizedId = recognizer.recognizeFace(faceMat);
+                        if (recognizedId != null) {
+                            Platform.runLater(() -> markStudentPresent(recognizedId));
+                        }
+                    }
+
                     int count = faces.toArray().length;
 
                     Image fxImage = mat2Image(processed);
@@ -214,5 +247,56 @@ public class MainController {
             }
         }
 
+        recognizer.trainModel();
+
+        LocalDate currentDate = LocalDate.now();
+        String today = currentDate.toString();
+
+        AttendanceDAO attendanceDAO = new AttendanceDAO();
+
+        Platform.runLater(() -> {
+            studentPresenceList.clear();
+
+            for (Student student : students) {
+                StudentPresence sp = new StudentPresence(student.getId(), student.getFirstName(), student.getLastName());
+                sp.setPresent(false);
+
+                List<Attendance> attendances = attendanceDAO.getAttendanceForStudentInGroup(student.getId(), groupId);
+                Attendance todayAttendance = attendances.stream()
+                        .filter(a -> a.getDate().equals(today))
+                        .findFirst()
+                        .orElse(null);
+
+                if (todayAttendance != null) {
+                    sp.setPresent(todayAttendance.isPresent());
+                    sp.setAttendanceId(todayAttendance.getId());
+                }
+
+                sp.presentProperty().addListener((obs, oldVal, newVal) -> {
+                    if (sp.getAttendanceId() != null) {
+                        Attendance updated = new Attendance(sp.getAttendanceId(), sp.getId(), groupId, today, newVal);
+                        attendanceDAO.updateAttendance(updated);
+                    } else {
+                        Attendance created = new Attendance(sp.getId(), groupId, today, newVal);
+                        attendanceDAO.addAttendance(created);
+                    }
+                });
+
+                studentPresenceList.add(sp);
+            }
+            recognizer.trainModel();
+        });
     }
+
+
+    private void markStudentPresent(int studentId) {
+        for (StudentPresence sp : studentPresenceList) {
+            if (sp.getId() == studentId && !sp.isPresent()) {
+                sp.setPresent(true);
+                break;
+            }
+        }
+    }
+
+
 }

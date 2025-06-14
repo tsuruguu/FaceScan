@@ -4,30 +4,43 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
-
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+
 <AnchorPane stylesheets="@/styles/style.css" xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.faceScan.controller.MainController"
-            prefWidth="800" prefHeight="600">
+            prefWidth="900" prefHeight="600">
 
     <children>
+
         <ImageView fx:id="cameraView" styleClass="image-view"
-                   fitWidth="640" fitHeight="480"
-                   layoutX="80" layoutY="50"
+                   fitWidth="500" fitHeight="375"
+                   layoutX="30" layoutY="100"
                    preserveRatio="true"/>
 
         <Button fx:id="startButton" text="Start" styleClass="start-button"
-                layoutX="350" layoutY="550"
+                layoutX="160" layoutY="490"
                 onAction="#onStartClicked"/>
 
         <Button fx:id="stopButton" text="Stop" styleClass="stop-button"
-                layoutX="350" layoutY="550"
+                layoutX="250" layoutY="490"
                 onAction="#onStopClicked"/>
 
         <Label fx:id="countLabel" text="Wykryto: 0" styleClass="label"
-               layoutX="80" layoutY="20"/>
+               layoutX="30" layoutY="70"/>
 
-        <ListView fx:id="groupListView" prefHeight="150" prefWidth="200" />
+        <TableView fx:id="attendanceTable"
+                   layoutX="550" layoutY="100"
+                   prefWidth="300" prefHeight="375">
+            <columns>
+                <TableColumn fx:id="colFirstName" text="Imię" prefWidth="100" />
+                <TableColumn fx:id="colLastName" text="Nazwisko" prefWidth="100" />
+                <TableColumn fx:id="colPresent" text="Obecny" prefWidth="100" />
+            </columns>
+        </TableView>
+
+        <ListView fx:id="groupListView" prefHeight="0" prefWidth="0" />
 
     </children>
 </AnchorPane>

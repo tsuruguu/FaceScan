@@ -33,6 +33,8 @@ public class User {
     public String getLastName() { return lastName; }
     public String getPhotoPath() { return photoPath; }
     public boolean isProfessor() {return "professor".equalsIgnoreCase(role);}
+    public String getFullName() { return firstName+" "+lastName; }
+
 
     public void setId(int id) { this.id = id; }
     public void setPassword(String password) { this.password = password; }

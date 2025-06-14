@@ -2,6 +2,7 @@ package com.faceScan.controller;
 
 import com.faceScan.dao.GroupMemberDAO;
 import com.faceScan.dao.UserDAO;
+import com.faceScan.model.StudentPresence;
 import com.faceScan.model.User;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -202,4 +203,31 @@ public class GroupController {
             new Alert(Alert.AlertType.ERROR, "Failed to open presence view.").showAndWait();
         }
     }
+
+    @FXML
+    private void onShowHistory() {
+        User selected = studentsTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            new Alert(Alert.AlertType.WARNING, "Zaznacz studenta.").showAndWait();
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/attendance_history.fxml"));
+            Parent root = loader.load();
+
+            AttendanceHistoryController controller = loader.getController();
+            controller.loadHistory(selected.getId(), groupId);
+
+            Stage stage = new Stage();
+            stage.setTitle("Historia obecności: " + selected.getFullName());
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            new Alert(Alert.AlertType.ERROR, "Nie udało się otworzyć historii.").showAndWait();
+        }
+    }
+
+
 }

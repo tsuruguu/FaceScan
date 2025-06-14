@@ -11,7 +11,6 @@
 
     <VBox spacing="15" alignment="CENTER" style="-fx-padding: 30;" maxWidth="700">
 
-        <!-- Elastyczna przestrzeń od góry -->
         <Region VBox.vgrow="ALWAYS"/>
 
         <Label fx:id="groupNameLabel" text="Nazwa grupy"
@@ -46,6 +45,8 @@
         <HBox spacing="10" alignment="CENTER_RIGHT" maxWidth="700" style="-fx-padding: 10 0 0 0;">
             <Button text="Sprawdź obecność" onAction="#handleCheckAttendance" styleClass="button"/>
         </HBox>
+
+        <Button fx:id="showHistoryBtn" layoutX="20" layoutY="420" text="Pokaż historię" onAction="#onShowHistory"/>
 
         <Region VBox.vgrow="ALWAYS"/>
 
