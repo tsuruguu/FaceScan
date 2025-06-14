@@ -1,27 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.HBox?>
 
-<VBox xmlns="http://javafx.com/javafx/8.0.171"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.faceScan.controller.AttendanceController"
-      spacing="10" style="-fx-padding: 20;">
+<StackPane xmlns="http://javafx.com/javafx/8.0.171"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.faceScan.controller.AttendanceController"
+           stylesheets="@/styles/style.css"
+           prefWidth="800" prefHeight="600"
+           style="-fx-background-color: #f9f9f9;">
 
-    <Label fx:id="groupLabel" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+    <VBox spacing="15" alignment="CENTER" style="-fx-padding: 30;" maxWidth="700">
 
-    <HBox spacing="10">
-        <DatePicker fx:id="datePicker"/>
-        <Button fx:id="saveButton" text="Zapisz" onAction="#handleSaveAttendance"/>
-    </HBox>
+        <Label fx:id="groupLabel" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
 
-    <TableView fx:id="attendanceTable" prefHeight="400">
-        <columns>
-            <TableColumn fx:id="colStudentName" text="Student"/>
-            <TableColumn fx:id="colDate" text="Data"/>
-            <TableColumn fx:id="colPresent" text="Obecny"/>
-        </columns>
-    </TableView>
+        <HBox spacing="10" alignment="CENTER">
+            <DatePicker fx:id="datePicker" maxWidth="200"/>
+            <Button fx:id="saveButton" text="Zapisz" onAction="#handleSaveAttendance" styleClass="button" maxWidth="150"/>
+        </HBox>
 
-</VBox>
+        <TableView fx:id="attendanceTable" prefHeight="400" maxWidth="700">
+            <columns>
+                <TableColumn fx:id="colStudentName" text="Student" prefWidth="250"/>
+                <TableColumn fx:id="colDate" text="Data" prefWidth="200"/>
+                <TableColumn fx:id="colPresent" text="Obecny" prefWidth="150"/>
+            </columns>
+        </TableView>
+    </VBox>
+</StackPane>

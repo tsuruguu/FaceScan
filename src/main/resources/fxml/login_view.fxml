@@ -1,17 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.control.*?>
 
-<VBox xmlns="http://javafx.com/javafx/8.0.171"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.faceScan.controller.LoginController"
-      spacing="10" style="-fx-padding: 20;">
+<StackPane xmlns="http://javafx.com/javafx/8.0.171"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.faceScan.controller.LoginController"
+           stylesheets="@/styles/style.css"
+           prefWidth="800" prefHeight="600"
+           style="-fx-background-color: #f9f9f9;">
 
-    <TextField fx:id="usernameField" promptText="Username"/>
-    <PasswordField fx:id="passwordField" promptText="Password"/>
-    <Label fx:id="messageLabel"/>
+    <VBox spacing="15" alignment="CENTER" style="-fx-padding: 30;">
+        <Label text="FaceScan" style="-fx-font-size: 28px; -fx-font-weight: bold;" />
+        <Label text="System rozpoznawania twarzy studentów"
+               style="-fx-font-size: 14px; -fx-text-fill: #555;" />
 
-    <Button text="Zaloguj" onAction="#onLogin"/>
-    <Button text="Zarejestruj się" onAction="#goToRegister"/>
-</VBox>
+        <TextField fx:id="usernameField" promptText="Login" styleClass="text-field" maxWidth="250"/>
+        <PasswordField fx:id="passwordField" promptText="Hasło" styleClass="password-field" maxWidth="250"/>
+        <Label fx:id="messageLabel" style="-fx-text-fill: red;" />
+
+        <Button text="Zaloguj" onAction="#onLogin" styleClass="button" maxWidth="150"/>
+        <Button text="Zarejestruj się" onAction="#goToRegister" styleClass="button" maxWidth="150"/>
+    </VBox>
+</StackPane>

@@ -2,6 +2,7 @@
     -fx-background-color: #ffffff;
     -fx-background-image: url("/images/background.jpg");
     -fx-background-size: cover;
+    -fx-font-family: "Seoge UI", sans-serif;
 }
 
 .image-view {
@@ -49,4 +50,15 @@
 
 .anchor-pane {
     -fx-padding: 20;
+}
+
+.text-field, .password-field {
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-border-color: #ccc;
+    -fx-border-width: 1px;
+    -fx-padding: 8px;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+    -fx-background-color: #ffffff;
 }

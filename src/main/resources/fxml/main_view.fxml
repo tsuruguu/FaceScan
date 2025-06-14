@@ -27,7 +27,7 @@
         <Label fx:id="countLabel" text="Wykryto: 0" styleClass="label"
                layoutX="80" layoutY="20"/>
 
-        <ListView fx:id="groupListView" prefHeight="150" prefWidth="200" />
+        <ListView fx:id="groupListView" prefHeight="0" prefWidth="0" />
 
     </children>
 </AnchorPane>

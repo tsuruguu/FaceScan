@@ -57,7 +57,7 @@ public class GroupController {
                 if (evt.getClickCount() == 2 && !row.isEmpty()) {
                     User u = row.getItem();
                     try {
-                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/StudentDetails.fxml"));
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/student_details.fxml"));
                         Parent root = loader.load();
                         StudentDetailsController ctrl = loader.getController();
                         ctrl.setUser(u);

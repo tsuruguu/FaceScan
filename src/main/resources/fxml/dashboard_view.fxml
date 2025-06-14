@@ -1,21 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
 
-<VBox xmlns="http://javafx.com/javafx/8.0.171"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.faceScan.controller.DashboardController"
-      spacing="10" style="-fx-padding: 20;">
+<BorderPane xmlns="http://javafx.com/javafx/8.0.171"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.faceScan.controller.DashboardController"
+            stylesheets="@/styles/style.css"
+            prefWidth="800" prefHeight="600"
+            style="-fx-background-color: #f9f9f9;">
 
-    <Label fx:id="roleLabel"/>
+    <top>
+        <HBox alignment="TOP_RIGHT" style="-fx-padding: 10;">
+            <Label fx:id="roleLabel" style="-fx-font-size: 14px;"/>
+        </HBox>
+    </top>
 
-    <HBox spacing="10">
-        <TextField fx:id="groupNameField" promptText="Nowa grupa"/>
-        <Button fx:id="addGroupButton" text="Dodaj" onAction="#onAddGroup"/>
-        <Button fx:id="deleteGroupButton" text="Usuń" onAction="#onDeleteGroup"/>
-    </HBox>
 
-    <ListView fx:id="groupListView" prefHeight="300" onMouseClicked="#onGroupSelected"/>
-</VBox>
+    <center>
+        <VBox spacing="15" alignment="CENTER" style="-fx-padding: 30;" maxWidth="600">
+
+            <HBox spacing="10" alignment="CENTER">
+                <TextField fx:id="groupNameField" promptText="Nowa grupa" styleClass="text-field" maxWidth="200"/>
+                <Button fx:id="addGroupButton" text="Dodaj" onAction="#onAddGroup" styleClass="button"/>
+                <Button fx:id="deleteGroupButton" text="Usuń" onAction="#onDeleteGroup" styleClass="button"/>
+            </HBox>
+
+            <ListView fx:id="groupListView" prefHeight="350" maxWidth="400" onMouseClicked="#onGroupSelected"/>
+
+        </VBox>
+    </center>
+
+</BorderPane>
