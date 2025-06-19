@@ -29,4 +29,14 @@ public class StudentDetailsController {
             }
         }
     }
+
+    void setNameLabel(Label label) { this.nameLabel = label; }
+    void setUsernameLabel(Label label) { this.usernameLabel = label; }
+    void setRoleLabel(Label label) { this.roleLabel = label; }
+    void setPhotoView(ImageView photoView) { this.photoView = photoView; }
+
+    public Label getNameLabel() { return nameLabel; }
+    public Label getUsernameLabel() { return usernameLabel; }
+    public Label getRoleLabel() { return roleLabel; }
+    public ImageView getPhotoView() { return photoView; }
 }

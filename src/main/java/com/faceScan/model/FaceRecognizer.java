@@ -72,4 +72,9 @@ public class FaceRecognizer implements IFaceRecognizer {
     public void saveModel(String filePath) {
         recognizer.write(filePath);
     }
+
+    public List<Mat> getTrainingImages() {return trainingImages;}
+    public List<Integer> getTrainingLabels() {return trainingLabels;}
+    public Map<Integer, String> getLabelNameMap() {return labelNameMap;}
+
 }

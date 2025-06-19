@@ -1,0 +1,64 @@
+.root {
+    -fx-background-color: #ffffff;
+    -fx-background-image: url("/images/background.jpg");
+    -fx-background-size: cover;
+    -fx-font-family: "Seoge UI", sans-serif;
+}
+
+.image-view {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 10, 0.5, 0, 0);
+    -fx-border-color:  #FFC0CB;
+    -fx-border-width: 2;
+    -fx-background-radius: 5;
+    -fx-padding: 5;
+}
+
+
+.button {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-padding: 8 20;
+    -fx-cursor: hand;
+}
+
+
+.start-button {
+    -fx-background-color: #FFDDEE;
+}
+.start-button:hover {
+    -fx-background-color: #66bb6a;
+}
+
+
+.stop-button {
+    -fx-background-color: #E75480;
+}
+.stop-button:hover {
+    -fx-background-color: #e57373;
+}
+
+
+.label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+    -fx-padding: 0 0 0 10;
+}
+
+
+.anchor-pane {
+    -fx-padding: 20;
+}
+
+.text-field, .password-field {
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-border-color: #ccc;
+    -fx-border-width: 1px;
+    -fx-padding: 8px;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+    -fx-background-color: #ffffff;
+}

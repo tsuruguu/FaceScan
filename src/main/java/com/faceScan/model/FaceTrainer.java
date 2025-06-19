@@ -12,6 +12,7 @@ public class FaceTrainer {
 
     public static void main(String[] args) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        System.out.println("OpenCV loaded: " + Core.NATIVE_LIBRARY_NAME);
 
         // Ścieżka do folderu ze zdjęciami
         String dataPath = "face_data";

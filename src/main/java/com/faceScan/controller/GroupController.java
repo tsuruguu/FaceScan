@@ -32,12 +32,11 @@ public class GroupController {
     @FXML private TextField firstNameField;
     @FXML private TextField lastNameField;
 
-
     private int groupId;
     private final ObservableList<User> students = FXCollections.observableArrayList();
 
-    private final GroupMemberDAO groupMemberDAO = new GroupMemberDAO();
-    private final UserDAO userDAO = new UserDAO();
+    private GroupMemberDAO groupMemberDAO = new GroupMemberDAO();
+    private UserDAO userDAO = new UserDAO();
 
     public void setGroup(int groupId, String groupName) {
         this.groupId = groupId;
@@ -126,7 +125,7 @@ public class GroupController {
     }
 
     @FXML
-    private void handleAddStudent() {
+    void handleAddStudent() {
         String firstName = firstNameField.getText().trim();
         String lastName = lastNameField.getText().trim();
         String photoPath = photoPathLabel.getText().trim();
@@ -152,7 +151,7 @@ public class GroupController {
     }
 
     @FXML
-    private void handleDeleteStudent() {
+    void handleDeleteStudent() {
         User selected = studentsTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
             new Alert(Alert.AlertType.INFORMATION, "Zaznacz studenta do usunięcia.").showAndWait();
@@ -229,5 +228,36 @@ public class GroupController {
         }
     }
 
+    public Label getGroupNameLabel() {return groupNameLabel;}
+    public void setGroupNameLabel(Label groupNameLabel) {this.groupNameLabel = groupNameLabel;}
 
+    public ComboBox<User> getStudentComboBox() {return studentComboBox;}
+    public void setStudentComboBox(ComboBox<User> studentComboBox) {this.studentComboBox = studentComboBox;}
+
+    public TableView<User> getStudentsTable() {return studentsTable;}
+    public void setStudentsTable(TableView<User> studentsTable) {this.studentsTable = studentsTable;}
+
+    public TableColumn<User, String> getColFirstName() {return colFirstName;}
+    public void setColFirstName(TableColumn<User, String> colFirstName) {this.colFirstName = colFirstName;}
+
+    public TableColumn<User, String> getColLastName() {return colLastName;}
+    public void setColLastName(TableColumn<User, String> colLastName) {this.colLastName = colLastName;}
+
+    public Label getPhotoPathLabel() {return photoPathLabel;}
+    public void setPhotoPathLabel(Label photoPathLabel) {this.photoPathLabel = photoPathLabel;}
+
+    public TextField getFirstNameField() {return firstNameField;}
+    public void setFirstNameField(TextField firstNameField) {this.firstNameField = firstNameField;}
+
+    public TextField getLastNameField() {return lastNameField;}
+    public void setLastNameField(TextField lastNameField) {this.lastNameField = lastNameField;}
+
+    public int getGroupId() {return groupId;}
+    public void setGroupId(int groupId) {this.groupId = groupId;}
+
+    public GroupMemberDAO getGroupMemberDAO() {return groupMemberDAO;}
+    public void setGroupMemberDAO(GroupMemberDAO groupMemberDAO) {this.groupMemberDAO = groupMemberDAO;}
+
+    public UserDAO getUserDAO() {return userDAO;}
+    public void setUserDAO(UserDAO userDAO) {this.userDAO = userDAO;}
 }

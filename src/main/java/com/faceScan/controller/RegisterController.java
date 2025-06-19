@@ -20,10 +20,18 @@ public class RegisterController {
     @FXML private TextField roleField;
     @FXML private Label messageLabel;
 
-    private final UserDAO userDAO = new UserDAO();
+    private UserDAO userDAO = new UserDAO();
+
+    public RegisterController() {
+        this.userDAO = new UserDAO();
+    }
+
+    public RegisterController(UserDAO userDAO) {
+        this.userDAO = userDAO;
+    }
 
     @FXML
-    private void onRegister() {
+    void onRegister() {
         String username = usernameField.getText().trim();
         String password = passwordField.getText();
         String confirmPassword = confirmPasswordField.getText();
@@ -90,4 +98,28 @@ public class RegisterController {
         messageLabel.setStyle("-fx-text-fill: " + color + ";");
         messageLabel.setText(text);
     }
+
+    public void setUserDAO(UserDAO userDAO) {this.userDAO = userDAO;}
+
+    public TextField getUsernameField() {return usernameField;}
+    public void setUsernameField(TextField usernameField) {this.usernameField = usernameField;}
+
+    public PasswordField getPasswordField() {return passwordField;}
+    public void setPasswordField(PasswordField passwordField) {this.passwordField = passwordField;}
+
+    public PasswordField getConfirmPasswordField() {return confirmPasswordField;}
+    public void setConfirmPasswordField(PasswordField confirmPasswordField) {this.confirmPasswordField = confirmPasswordField;}
+
+    public TextField getFirstNameField() {return firstNameField;}
+    public void setFirstNameField(TextField firstNameField) {this.firstNameField = firstNameField;}
+
+    public TextField getLastNameField() {return lastNameField;}
+    public void setLastNameField(TextField lastNameField) {this.lastNameField = lastNameField;}
+
+    public TextField getRoleField() {return roleField;}
+    public void setRoleField(TextField roleField) {this.roleField = roleField;}
+
+    public Label getMessageLabel() {return messageLabel;}
+    public void setMessageLabel(Label messageLabel) {this.messageLabel = messageLabel;}
+
 }

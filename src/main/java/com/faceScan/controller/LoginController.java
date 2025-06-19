@@ -26,10 +26,10 @@ public class LoginController {
     @FXML private TextField lastNameField;
     @FXML private TextField roleField;
 
-    private final UserDAO userDAO = new UserDAO();
+    private UserDAO userDAO = new UserDAO();
 
     @FXML
-    private void onLogin() {
+    void onLogin() {
         String username = usernameField.getText().trim();
         String password = passwordField.getText();
 
@@ -46,42 +46,6 @@ public class LoginController {
             openDashboard(user);
         } else {
             showMessage("Wrong username or password!", "red");
-        }
-    }
-
-    @FXML
-    private void onRegister() {
-        String username = usernameField.getText().trim();
-        String password = passwordField.getText();
-        String confirmPassword = confirmPasswordField.getText();
-        String firstName = firstNameField.getText().trim();
-        String lastName = lastNameField.getText().trim();
-        String role = roleField.getText().trim().toLowerCase();
-
-        if (username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()
-                || firstName.isEmpty() || lastName.isEmpty() || role.isEmpty()) {
-            showMessage("Fill in all fields!", "red");
-            return;
-        }
-
-        if (!password.equals(confirmPassword)) {
-            showMessage("Passwords do not match!","red");
-            return;
-        }
-
-        if (!role.equals("student") && !role.equals("professor")) {
-            showMessage("The role must be 'student' or 'professor'!", "red");
-            return;
-        }
-
-        User user = new User(username, password, role, firstName, lastName);
-        boolean success = userDAO.registerUser(user);
-
-        if (success) {
-            showMessage("Zarejestrowano! Możesz się teraz zalogować.", "green");
-            clearRegisterFields();
-        } else {
-            showMessage("Rejestracja nie powiodła się.", "red");
         }
     }
 
@@ -128,4 +92,30 @@ public class LoginController {
             e.printStackTrace();
         }
     }
+
+    public TextField getUsernameField() {return usernameField;}
+    public void setUsernameField(TextField usernameField) {this.usernameField = usernameField;}
+
+    public PasswordField getPasswordField() {return passwordField;}
+    public void setPasswordField(PasswordField passwordField) {this.passwordField = passwordField;}
+
+    public Label getMessageLabel() {return messageLabel;}
+    public void setMessageLabel(Label messageLabel) {this.messageLabel = messageLabel;}
+
+    public PasswordField getConfirmPasswordField() {return confirmPasswordField;}
+    public void setConfirmPasswordField(PasswordField confirmPasswordField) {this.confirmPasswordField = confirmPasswordField;}
+
+    public TextField getFirstNameField() {return firstNameField;}
+    public void setFirstNameField(TextField firstNameField) {this.firstNameField = firstNameField;}
+
+    public TextField getLastNameField() {return lastNameField;}
+    public void setLastNameField(TextField lastNameField) {this.lastNameField = lastNameField;}
+
+    public TextField getRoleField() {return roleField;}
+    public void setRoleField(TextField roleField) {this.roleField = roleField;}
+
+    public UserDAO getUserDAO() {return userDAO;}
+    public void setUserDAO(UserDAO userDAO) {this.userDAO = userDAO;}
+
+
 }

@@ -57,20 +57,6 @@ public class GroupDAO {
         return students;
     }
 
-//    public boolean addStudentToGroup(int groupId, int studentId) {
-//        String sql = "INSERT OR IGNORE INTO group_members (group_id, student_id) VALUES (?, ?)";
-//        try (Connection conn = DatabaseManager.getConnection();
-//             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-//            pstmt.setInt(1, groupId);
-//            pstmt.setInt(2, studentId);
-//            pstmt.executeUpdate();
-//            return true;
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//            return false;
-//        }
-//    }
-
     public static List<Group> getGroupsByUserId(int professorId) {
         List<Group> groups = new ArrayList<>();
         String sql = "SELECT id, name, professor_id FROM groups WHERE professor_id = ?";

@@ -25,6 +25,16 @@ public class User {
         this.firstName = firstName;
         this.lastName = lastName;
     }
+
+    public User(String username, String password, String role, String firstName, String lastName, String photoPath) {
+        this.username = username;
+        this.password = password;
+        this.role = role;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.photoPath = photoPath;
+    }
+
     public int getId() { return id; }
     public String getUsername() { return username; }
     public String getPassword() { return password; }
