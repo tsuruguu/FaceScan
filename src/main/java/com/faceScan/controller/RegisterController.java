@@ -1,5 +1,6 @@
 package com.faceScan.controller;
 
+import com.faceScan.dao.IUserDAO;
 import com.faceScan.dao.UserDAO;
 import com.faceScan.model.User;
 import javafx.application.Platform;
@@ -20,13 +21,13 @@ public class RegisterController {
     @FXML private TextField roleField;
     @FXML private Label messageLabel;
 
-    private UserDAO userDAO = new UserDAO();
+    private IUserDAO userDAO = new UserDAO();
 
     public RegisterController() {
         this.userDAO = new UserDAO();
     }
 
-    public RegisterController(UserDAO userDAO) {
+    public RegisterController(IUserDAO userDAO) {
         this.userDAO = userDAO;
     }
 
@@ -99,7 +100,7 @@ public class RegisterController {
         messageLabel.setText(text);
     }
 
-    public void setUserDAO(UserDAO userDAO) {this.userDAO = userDAO;}
+    public void setUserDAO(IUserDAO userDAO) { this.userDAO = userDAO; }
 
     public TextField getUsernameField() {return usernameField;}
     public void setUsernameField(TextField usernameField) {this.usernameField = usernameField;}

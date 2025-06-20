@@ -23,15 +23,18 @@ public class Student {
     // getters + properties
     public int getId() { return id.get(); }
     public SimpleIntegerProperty idProperty() { return id; }
-
     public String getFirstName() { return firstName.get(); }
     public SimpleStringProperty firstNameProperty() { return firstName; }
 
     public String getLastName() { return lastName.get(); }
     public SimpleStringProperty lastNameProperty() { return lastName; }
-
     public String getPhotoPath() { return photoPath.get(); }
     public SimpleStringProperty photoPathProperty() { return photoPath; }
+    public void setId(int id) { this.id.set(id); }
+    public void setFirstName(String firstName) { this.firstName.set(firstName); }
+    public void setLastName(String lastName) { this.lastName.set(lastName); }
+    public void setPhotoPath(String photoPath) { this.photoPath.set(photoPath); }
+
 
     @Override
     public String toString() {

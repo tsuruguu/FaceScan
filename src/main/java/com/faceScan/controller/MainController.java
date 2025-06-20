@@ -288,8 +288,7 @@ public class MainController {
         });
     }
 
-
-    private void markStudentPresent(int studentId) {
+    void markStudentPresent(int studentId) {
         for (StudentPresence sp : studentPresenceList) {
             if (sp.getId() == studentId && !sp.isPresent()) {
                 sp.setPresent(true);
@@ -298,5 +297,6 @@ public class MainController {
         }
     }
 
+    public ObservableList<StudentPresence> getStudentPresenceList() {return studentPresenceList;}
 
 }

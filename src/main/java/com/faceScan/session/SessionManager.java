@@ -15,8 +15,10 @@ public class SessionManager {
         currentUser = null;
     }
 
-    public static User getCurrentUser(){ return currentUser; }
-
     public static boolean isLoggedIn(){ return currentUser != null; }
+
+    public static void setCurrentUser(User user) {currentUser = user;}
+    public static User getCurrentUser() {return currentUser;}
+
 
 }

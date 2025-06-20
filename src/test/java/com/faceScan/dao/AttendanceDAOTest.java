@@ -20,17 +20,25 @@ public class AttendanceDAOTest {
 
     @BeforeAll
     void setup() throws Exception {
+        DatabaseManager.useTestDatabase();
         DatabaseManager.init();
+
         attendanceDAO = new AttendanceDAO();
         userDAO = new UserDAO();
 
         try (Connection conn = DatabaseManager.getConnection();
              Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("DELETE FROM attendance");
-            stmt.executeUpdate("DELETE FROM users");
-            stmt.executeUpdate("DELETE FROM groups");
             stmt.executeUpdate("DELETE FROM group_members");
+            stmt.executeUpdate("DELETE FROM groups");
+            stmt.executeUpdate("DELETE FROM users");
         }
+    }
+
+    @AfterAll
+    void teardown() {
+        DatabaseManager.useProductionDatabase();
+        DatabaseManager.init();
     }
 
     private int createUser(String username, String role) {
@@ -74,7 +82,7 @@ public class AttendanceDAOTest {
         List<Attendance> groupAttendances = attendanceDAO.getAttendanceForStudentInGroup(studentId, groupId);
         assertFalse(groupAttendances.isEmpty());
 
-        Attendance firstRecord = groupAttendances.getFirst();
+        Attendance firstRecord = groupAttendances.get(0);
         assertEquals("2025-06-19", firstRecord.getDate());
         assertTrue(firstRecord.isPresent());
     }
@@ -91,7 +99,7 @@ public class AttendanceDAOTest {
         List<Attendance> attendances = attendanceDAO.getAttendanceForStudentInGroup(studentId, groupId);
         assertFalse(attendances.isEmpty());
 
-        Attendance toUpdate = attendances.getFirst();
+        Attendance toUpdate = attendances.get(0);
         toUpdate.setPresent(false);
 
         boolean updated = attendanceDAO.updateAttendance(toUpdate);
@@ -99,6 +107,6 @@ public class AttendanceDAOTest {
 
         List<Attendance> updatedAttendances = attendanceDAO.getAttendanceForStudentInGroup(studentId, groupId);
         assertFalse(updatedAttendances.isEmpty());
-        assertFalse(updatedAttendances.getFirst().isPresent());
+        assertFalse(updatedAttendances.get(0).isPresent());
     }
 }

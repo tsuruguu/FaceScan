@@ -4,7 +4,7 @@ import com.faceScan.dao.GroupMemberDAO;
 import com.faceScan.dao.UserDAO;
 import com.faceScan.model.StudentPresence;
 import com.faceScan.model.User;
-
+import com.faceScan.util.AlertFactory;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,6 +16,7 @@ import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.scene.control.Alert.AlertType;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,6 +38,12 @@ public class GroupController {
 
     private GroupMemberDAO groupMemberDAO = new GroupMemberDAO();
     private UserDAO userDAO = new UserDAO();
+
+    private AlertFactory alertFactory = new AlertFactory();
+
+    public void setAlertFactory(AlertFactory factory) {
+        this.alertFactory = factory;
+    }
 
     public void setGroup(int groupId, String groupName) {
         this.groupId = groupId;
@@ -72,7 +79,7 @@ public class GroupController {
                         loadStudents();
                     } catch (IOException e) {
                         e.printStackTrace();
-                        new Alert(Alert.AlertType.ERROR, "Could not open details.").showAndWait();
+                        alertFactory.createAlert(Alert.AlertType.ERROR, "Błąd", "Could not open details.").showAndWait();
                     }
                 }
             });
@@ -84,7 +91,7 @@ public class GroupController {
                 if (groupMemberDAO.removeStudentFromGroup(u.getId(), groupId)) {
                     loadStudents();
                 } else {
-                    new Alert(Alert.AlertType.ERROR, "Failed to delete student from group.").showAndWait();
+                    alertFactory.createAlert(Alert.AlertType.ERROR, "Błąd", "Failed to delete student from group.").showAndWait();
                 }
             });
             menu.getItems().add(remove);
@@ -131,14 +138,14 @@ public class GroupController {
         String photoPath = photoPathLabel.getText().trim();
 
         if (firstName.isEmpty() || lastName.isEmpty() || photoPath.equals("Brak zdjęcia")) {
-            new Alert(Alert.AlertType.WARNING, "Uzupełnij dane i wybierz zdjęcie.").showAndWait();
+            alertFactory.createAlert(AlertType.WARNING, "Message", "Uzupełnij dane i wybierz zdjęcie.").showAndWait();
             return;
         }
 
         User newUser = new User("s" + System.currentTimeMillis(), "pass", "student", firstName, lastName);
         newUser.setPhotoPath(photoPath);
         if (!userDAO.registerUser(newUser)) {
-            new Alert(Alert.AlertType.ERROR, "Nie udało się dodać użytkownika.").showAndWait();
+            alertFactory.createAlert(AlertType.ERROR, "Message", "Nie udało się dodać użytkownika.").showAndWait();
             return;
         }
 
@@ -146,7 +153,7 @@ public class GroupController {
         if (created != null && groupMemberDAO.addStudentToGroup(created.getId(), groupId)) {
             loadStudents();
         } else {
-            new Alert(Alert.AlertType.ERROR, "Nie udało się dodać studenta do grupy.").showAndWait();
+            alertFactory.createAlert(AlertType.ERROR, "Message", "Nie udało się dodać studenta do grupy.").showAndWait();
         }
     }
 
@@ -154,7 +161,7 @@ public class GroupController {
     void handleDeleteStudent() {
         User selected = studentsTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            new Alert(Alert.AlertType.INFORMATION, "Zaznacz studenta do usunięcia.").showAndWait();
+            alertFactory.createAlert(Alert.AlertType.INFORMATION, "Message", "Zaznacz studenta do usunięcia.").showAndWait();
             return;
         }
 
@@ -162,7 +169,7 @@ public class GroupController {
         if (success) {
             loadStudents();
         } else {
-            new Alert(Alert.AlertType.ERROR, "Nie udało się usunąć studenta z grupy.").showAndWait();
+            alertFactory.createAlert(Alert.AlertType.ERROR, "Message", "Nie udało się usunąć studenta z grupy.").showAndWait();
         }
     }
 
@@ -170,14 +177,14 @@ public class GroupController {
     private void handleAddExistingStudent() {
         User selected = studentComboBox.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            new Alert(Alert.AlertType.WARNING, "Wybierz studenta z listy.").showAndWait();
+            alertFactory.createAlert(Alert.AlertType.WARNING, "Message", "Wybierz studenta z listy.").showAndWait();
             return;
         }
 
         if (groupMemberDAO.addStudentToGroup(selected.getId(), groupId)) {
             loadStudents();
         } else {
-            new Alert(Alert.AlertType.ERROR, "Nie udało się dodać studenta do grupy.").showAndWait();
+            alertFactory.createAlert(Alert.AlertType.ERROR, "Message", "Nie udało się dodać studenta do grupy.").showAndWait();
         }
     }
 
@@ -199,7 +206,7 @@ public class GroupController {
 
         } catch (IOException e) {
             e.printStackTrace();
-            new Alert(Alert.AlertType.ERROR, "Failed to open presence view.").showAndWait();
+            alertFactory.createAlert(Alert.AlertType.ERROR, "Błąd", "Failed to open presence view.").showAndWait();
         }
     }
 
@@ -207,7 +214,7 @@ public class GroupController {
     private void onShowHistory() {
         User selected = studentsTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            new Alert(Alert.AlertType.WARNING, "Zaznacz studenta.").showAndWait();
+            alertFactory.createAlert(Alert.AlertType.WARNING, "Błąd", "Zaznacz studenta.").showAndWait();
             return;
         }
 
@@ -224,40 +231,41 @@ public class GroupController {
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
-            new Alert(Alert.AlertType.ERROR, "Nie udało się otworzyć historii.").showAndWait();
+            alertFactory.createAlert(Alert.AlertType.ERROR, "Błąd", "Nie udało się otworzyć historii.").showAndWait();
         }
     }
 
-    public Label getGroupNameLabel() {return groupNameLabel;}
-    public void setGroupNameLabel(Label groupNameLabel) {this.groupNameLabel = groupNameLabel;}
+    // Gettery i settery
+    public Label getGroupNameLabel() { return groupNameLabel; }
+    public void setGroupNameLabel(Label groupNameLabel) { this.groupNameLabel = groupNameLabel; }
 
-    public ComboBox<User> getStudentComboBox() {return studentComboBox;}
-    public void setStudentComboBox(ComboBox<User> studentComboBox) {this.studentComboBox = studentComboBox;}
+    public ComboBox<User> getStudentComboBox() { return studentComboBox; }
+    public void setStudentComboBox(ComboBox<User> studentComboBox) { this.studentComboBox = studentComboBox; }
 
-    public TableView<User> getStudentsTable() {return studentsTable;}
-    public void setStudentsTable(TableView<User> studentsTable) {this.studentsTable = studentsTable;}
+    public TableView<User> getStudentsTable() { return studentsTable; }
+    public void setStudentsTable(TableView<User> studentsTable) { this.studentsTable = studentsTable; }
 
-    public TableColumn<User, String> getColFirstName() {return colFirstName;}
-    public void setColFirstName(TableColumn<User, String> colFirstName) {this.colFirstName = colFirstName;}
+    public TableColumn<User, String> getColFirstName() { return colFirstName; }
+    public void setColFirstName(TableColumn<User, String> colFirstName) { this.colFirstName = colFirstName; }
 
-    public TableColumn<User, String> getColLastName() {return colLastName;}
-    public void setColLastName(TableColumn<User, String> colLastName) {this.colLastName = colLastName;}
+    public TableColumn<User, String> getColLastName() { return colLastName; }
+    public void setColLastName(TableColumn<User, String> colLastName) { this.colLastName = colLastName; }
 
-    public Label getPhotoPathLabel() {return photoPathLabel;}
-    public void setPhotoPathLabel(Label photoPathLabel) {this.photoPathLabel = photoPathLabel;}
+    public Label getPhotoPathLabel() { return photoPathLabel; }
+    public void setPhotoPathLabel(Label photoPathLabel) { this.photoPathLabel = photoPathLabel; }
 
-    public TextField getFirstNameField() {return firstNameField;}
-    public void setFirstNameField(TextField firstNameField) {this.firstNameField = firstNameField;}
+    public TextField getFirstNameField() { return firstNameField; }
+    public void setFirstNameField(TextField firstNameField) { this.firstNameField = firstNameField; }
 
-    public TextField getLastNameField() {return lastNameField;}
-    public void setLastNameField(TextField lastNameField) {this.lastNameField = lastNameField;}
+    public TextField getLastNameField() { return lastNameField; }
+    public void setLastNameField(TextField lastNameField) { this.lastNameField = lastNameField; }
 
-    public int getGroupId() {return groupId;}
-    public void setGroupId(int groupId) {this.groupId = groupId;}
+    public int getGroupId() { return groupId; }
+    public void setGroupId(int groupId) { this.groupId = groupId; }
 
-    public GroupMemberDAO getGroupMemberDAO() {return groupMemberDAO;}
-    public void setGroupMemberDAO(GroupMemberDAO groupMemberDAO) {this.groupMemberDAO = groupMemberDAO;}
+    public GroupMemberDAO getGroupMemberDAO() { return groupMemberDAO; }
+    public void setGroupMemberDAO(GroupMemberDAO groupMemberDAO) { this.groupMemberDAO = groupMemberDAO; }
 
-    public UserDAO getUserDAO() {return userDAO;}
-    public void setUserDAO(UserDAO userDAO) {this.userDAO = userDAO;}
+    public UserDAO getUserDAO() { return userDAO; }
+    public void setUserDAO(UserDAO userDAO) { this.userDAO = userDAO; }
 }

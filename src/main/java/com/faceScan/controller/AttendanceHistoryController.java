@@ -11,7 +11,8 @@ import java.util.List;
 
 public class AttendanceHistoryController {
 
-    @FXML private TableView<Attendance> attendanceTable;
+    @FXML
+    TableView<Attendance> attendanceTable;
     @FXML private TableColumn<Attendance, String> dateCol;
     @FXML private TableColumn<Attendance, Boolean> presentCol;
 

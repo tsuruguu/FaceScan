@@ -21,16 +21,25 @@ public class GroupMemberDAOTest {
 
     @BeforeAll
     void setup() throws Exception {
+        DatabaseManager.useTestDatabase();
         DatabaseManager.init();
         groupMemberDAO = new GroupMemberDAO();
         userDAO = new UserDAO();
 
         try (Connection conn = DatabaseManager.getConnection();
-                Statement stmt = conn.createStatement()) {
+             Statement stmt = conn.createStatement()) {
+            stmt.execute("PRAGMA foreign_keys = OFF");
             stmt.executeUpdate("DELETE FROM group_members");
             stmt.executeUpdate("DELETE FROM groups");
             stmt.executeUpdate("DELETE FROM users");
+            stmt.execute("PRAGMA foreign_keys = ON");
         }
+    }
+
+    @AfterAll
+    void resetDatabase() {
+        DatabaseManager.useProductionDatabase();
+        DatabaseManager.init();
     }
 
     private int createUser(String username, String role) {
@@ -70,11 +79,11 @@ public class GroupMemberDAOTest {
 
         List<Group> groups = groupMemberDAO.getGroupsForStudent(studentId);
         assertEquals(1, groups.size());
-        assertEquals(groupId, groups.getFirst().getId());
+        assertEquals(groupId, groups.get(0).getId());
 
         List<Student> students = groupMemberDAO.getStudentsInGroup(groupId);
         assertEquals(1, students.size());
-        assertEquals(studentId, students.getFirst().getId());
+        assertEquals(studentId, students.get(0).getId());
 
         boolean removed = groupMemberDAO.removeStudentFromGroup(studentId, groupId);
         assertTrue(removed, "Student should be removed from group");

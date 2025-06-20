@@ -4,7 +4,11 @@ import com.faceScan.model.User;
 import com.faceScan.util.DatabaseManager;
 import org.junit.jupiter.api.*;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
@@ -17,8 +21,22 @@ public class UserDAOTest {
 
     @BeforeAll
     void setupDatabase() {
-        DatabaseManager.init();  // tworzy bazę i tabele
+        DatabaseManager.useTestDatabase();
+
+        try {
+            Files.deleteIfExists(Paths.get("test.db"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        DatabaseManager.init();
         userDAO = new UserDAO();
+    }
+
+    @AfterAll
+    void resetDatabase() {
+        DatabaseManager.useProductionDatabase();
+        DatabaseManager.init();
     }
 
     @BeforeEach
@@ -26,15 +44,23 @@ public class UserDAOTest {
         try (Connection conn = DatabaseManager.getConnection();
              Statement stmt = conn.createStatement()) {
 
+            stmt.executeUpdate("PRAGMA foreign_keys = OFF");
+
             stmt.execute("CREATE TABLE IF NOT EXISTS users (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "username TEXT NOT NULL UNIQUE, " +
                     "password TEXT NOT NULL, " +
-                    "role TEXT NOT NULL)");
+                    "role TEXT NOT NULL, " +
+                    "first_name TEXT, " +
+                    "last_name TEXT, " +
+                    "photo_path TEXT)");
 
             stmt.executeUpdate("DELETE FROM users");
+
+            stmt.executeUpdate("PRAGMA foreign_keys = ON");
         }
     }
+
 
 
     @Test

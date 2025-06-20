@@ -1,99 +1,130 @@
 package com.faceScan.controller;
 
-import com.faceScan.controller.RegisterController;
-import com.faceScan.dao.UserDAO;
+import com.faceScan.dao.IUserDAO;
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.*;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.concurrent.CountDownLatch;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 public class RegisterControllerTest {
 
     private RegisterController controller;
-    private UserDAO userDAOMock;
+    private IUserDAO userDAOMock;
+
+    @BeforeAll
+    public static void initJavaFX() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+        Platform.startup(() -> {
+            new JFXPanel();
+            latch.countDown();
+        });
+        latch.await();
+    }
 
     @BeforeEach
     void setup() {
+        userDAOMock = mock(IUserDAO.class);
         controller = new RegisterController(userDAOMock);
-
-        userDAOMock = mock(UserDAO.class);
         controller.setUserDAO(userDAOMock);
 
-        controller.setUsernameField(new TextField());
-        controller.setPasswordField(new PasswordField());
-        controller.setConfirmPasswordField(new PasswordField());
-        controller.setFirstNameField(new TextField());
-        controller.setLastNameField(new TextField());
-        controller.setRoleField(new TextField());
-        controller.setMessageLabel(new Label());
+        Platform.runLater(() -> {
+            controller.setUsernameField(new TextField());
+            controller.setPasswordField(new PasswordField());
+            controller.setConfirmPasswordField(new PasswordField());
+            controller.setFirstNameField(new TextField());
+            controller.setLastNameField(new TextField());
+            controller.setRoleField(new TextField());
+            controller.setMessageLabel(new Label());
+        });
+
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
     void testEmptyFieldsShowsError() {
-        controller.getUsernameField().setText("");
-        controller.onRegister();
-        assertEquals("Fill in all fields!", controller.getMessageLabel().getText());
+        Platform.runLater(() -> {
+            controller.getUsernameField().setText("");
+            controller.onRegister();
+            assertEquals("Fill in all fields!", controller.getMessageLabel().getText());
+        });
     }
 
     @Test
     void testPasswordMismatchShowsError() {
-        controller.getUsernameField().setText("user");
-        controller.getPasswordField().setText("pass1");
-        controller.getConfirmPasswordField().setText("pass2");
-        controller.getFirstNameField().setText("A");
-        controller.getLastNameField().setText("B");
-        controller.getRoleField().setText("student");
-        controller.onRegister();
-        assertEquals("Passwords do not match!", controller.getMessageLabel().getText());
+        Platform.runLater(() -> {
+            controller.getUsernameField().setText("user");
+            controller.getPasswordField().setText("pass1");
+            controller.getConfirmPasswordField().setText("pass2");
+            controller.getFirstNameField().setText("A");
+            controller.getLastNameField().setText("B");
+            controller.getRoleField().setText("student");
+
+            controller.onRegister();
+            assertEquals("Passwords do not match!", controller.getMessageLabel().getText());
+        });
     }
 
     @Test
     void testInvalidRoleShowsError() {
-        // ustaw poprawne pozostałe pola
-        controller.getUsernameField().setText("user");
-        controller.getPasswordField().setText("pass");
-        controller.getConfirmPasswordField().setText("pass");
-        controller.getFirstNameField().setText("A");
-        controller.getLastNameField().setText("B");
-        controller.getRoleField().setText("invalidRole");
-        controller.onRegister();
-        assertEquals("The role must be 'student' or 'professor", controller.getMessageLabel().getText());
+        Platform.runLater(() -> {
+            controller.getUsernameField().setText("user");
+            controller.getPasswordField().setText("pass");
+            controller.getConfirmPasswordField().setText("pass");
+            controller.getFirstNameField().setText("A");
+            controller.getLastNameField().setText("B");
+            controller.getRoleField().setText("invalidRole");
+
+            controller.onRegister();
+            assertEquals("The role must be 'student' or 'professor", controller.getMessageLabel().getText());
+        });
     }
 
     @Test
     void testSuccessfulRegistration() {
         when(userDAOMock.registerUser(any())).thenReturn(true);
 
-        controller.getUsernameField().setText("user");
-        controller.getPasswordField().setText("pass");
-        controller.getConfirmPasswordField().setText("pass");
-        controller.getFirstNameField().setText("A");
-        controller.getLastNameField().setText("B");
-        controller.getRoleField().setText("student");
+        Platform.runLater(() -> {
+            controller.getUsernameField().setText("user");
+            controller.getPasswordField().setText("pass");
+            controller.getConfirmPasswordField().setText("pass");
+            controller.getFirstNameField().setText("A");
+            controller.getLastNameField().setText("B");
+            controller.getRoleField().setText("student");
 
-        controller.onRegister();
+            controller.onRegister();
 
-        verify(userDAOMock).registerUser(any());
-        assertEquals("Account created! Redirect to login...", controller.getMessageLabel().getText());
+            verify(userDAOMock).registerUser(any());
+            assertEquals("Account created! Redirect to login...", controller.getMessageLabel().getText());
+        });
     }
 
     @Test
     void testFailedRegistration() {
         when(userDAOMock.registerUser(any())).thenReturn(false);
 
-        controller.getUsernameField().setText("user");
-        controller.getPasswordField().setText("pass");
-        controller.getConfirmPasswordField().setText("pass");
-        controller.getFirstNameField().setText("A");
-        controller.getLastNameField().setText("B");
-        controller.getRoleField().setText("student");
+        Platform.runLater(() -> {
+            controller.getUsernameField().setText("user");
+            controller.getPasswordField().setText("pass");
+            controller.getConfirmPasswordField().setText("pass");
+            controller.getFirstNameField().setText("A");
+            controller.getLastNameField().setText("B");
+            controller.getRoleField().setText("student");
 
-        controller.onRegister();
+            controller.onRegister();
 
-        verify(userDAOMock).registerUser(any());
-        assertEquals("Registration failed (login taken?)", controller.getMessageLabel().getText());
+            verify(userDAOMock).registerUser(any());
+            assertEquals("Registration failed (login taken?)", controller.getMessageLabel().getText());
+        });
     }
 }

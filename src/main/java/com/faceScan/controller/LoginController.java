@@ -27,6 +27,11 @@ public class LoginController {
     @FXML private TextField roleField;
 
     private UserDAO userDAO = new UserDAO();
+    private boolean testMode = false;
+
+    public void setTestMode(boolean testMode) {
+        this.testMode = testMode;
+    }
 
     @FXML
     void onLogin() {
@@ -43,7 +48,9 @@ public class LoginController {
         if (user != null) {
             SessionManager.login(user);
             showMessage("Logged in successfully!", "green");
-            openDashboard(user);
+            if (!testMode) {
+                openDashboard(user);
+            }
         } else {
             showMessage("Wrong username or password!", "red");
         }

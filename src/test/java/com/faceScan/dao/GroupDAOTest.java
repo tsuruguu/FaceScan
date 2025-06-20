@@ -20,29 +20,40 @@ public class GroupDAOTest {
 
     @BeforeAll
     void setup() throws Exception {
+        DatabaseManager.useTestDatabase();
         DatabaseManager.init();
+
         groupDAO = new GroupDAO();
         userDAO = new UserDAO();
 
         try (Connection conn = DatabaseManager.getConnection();
              Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate("PRAGMA foreign_keys = OFF");
             stmt.executeUpdate("DELETE FROM group_members");
             stmt.executeUpdate("DELETE FROM groups");
             stmt.executeUpdate("DELETE FROM users");
+            stmt.executeUpdate("PRAGMA foreign_keys = ON");
+
         }
+    }
+
+    @AfterAll
+    void teardown() {
+        DatabaseManager.useProductionDatabase();
+        DatabaseManager.init();
     }
 
     private int createUser(String username, String role) {
         User user = new User(username, "pass", role, "Test", "User");
-        assertTrue(userDAO.registerUser(user));
+        assertTrue(userDAO.registerUser(user), "User should be registered");
         User fromDb = userDAO.getUserByUsername(username);
-        assertNotNull(fromDb);
+        assertNotNull(fromDb, "User should be retrievable after registration");
         return fromDb.getId();
     }
 
     private int createGroup(String name, int professorId) throws Exception {
         Group group = new Group(0, name, professorId);
-        assertTrue(groupDAO.addGroup(group));
+        assertTrue(groupDAO.addGroup(group), "Group should be added successfully");
 
         List<Group> groups = GroupDAO.getGroupsByUserId(professorId);
         return groups.stream()
@@ -58,8 +69,8 @@ public class GroupDAOTest {
         int groupId = createGroup("Test Group", profId);
 
         List<Group> groups = GroupDAO.getGroupsByUserId(profId);
-        assertFalse(groups.isEmpty());
-        assertTrue(groups.stream().anyMatch(g -> g.getId() == groupId));
+        assertFalse(groups.isEmpty(), "Group list should not be empty for professor");
+        assertTrue(groups.stream().anyMatch(g -> g.getId() == groupId), "Created group should be present");
     }
 
     @Test
@@ -77,8 +88,8 @@ public class GroupDAOTest {
         }
 
         List<User> students = groupDAO.getStudentsInGroup(groupId);
-        assertEquals(1, students.size());
-        assertEquals(studentId, students.get(0).getId());
+        assertEquals(1, students.size(), "There should be one student in the group");
+        assertEquals(studentId, students.get(0).getId(), "Student ID should match");
     }
 
     @Test
@@ -87,9 +98,9 @@ public class GroupDAOTest {
         int groupId = createGroup("Group To Delete", profId);
 
         boolean deleted = groupDAO.deleteGroup(groupId);
-        assertTrue(deleted);
+        assertTrue(deleted, "Group should be deleted");
 
         List<Group> groups = GroupDAO.getGroupsByUserId(profId);
-        assertTrue(groups.stream().noneMatch(g -> g.getId() == groupId));
+        assertTrue(groups.stream().noneMatch(g -> g.getId() == groupId), "Group should no longer exist");
     }
 }

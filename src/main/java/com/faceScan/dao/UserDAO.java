@@ -7,7 +7,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserDAO {
+public class UserDAO implements IUserDAO  {
 
     public boolean registerUser(User user) {
         System.out.println("[REGISTER] " +

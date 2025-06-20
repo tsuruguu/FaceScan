@@ -78,7 +78,7 @@ public class AttendanceController {
     }
 
     @FXML
-    private void handleSaveAttendance() {
+    void handleSaveAttendance() {
         int successes = 0;
 
         for (Attendance a : attendanceList) {
@@ -95,4 +95,6 @@ public class AttendanceController {
 
         loadAttendance();
     }
+
+    public TableView<Attendance> getAttendanceTable() {return attendanceTable;}
 }

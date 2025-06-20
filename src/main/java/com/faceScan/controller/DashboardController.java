@@ -5,6 +5,7 @@ import com.faceScan.dao.GroupMemberDAO;
 import com.faceScan.model.Group;
 import com.faceScan.model.User;
 import com.faceScan.session.SessionManager;
+import com.faceScan.util.AlertFactory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -25,10 +26,13 @@ public class DashboardController {
     @FXML private Button deleteGroupButton;
     @FXML private Label roleLabel;
 
-    private final GroupDAO groupDAO = new GroupDAO();
-    private final GroupMemberDAO groupMemberDAO = new GroupMemberDAO();
+    private GroupDAO groupDAO = new GroupDAO();
+    private GroupMemberDAO groupMemberDAO = new GroupMemberDAO();
+    private AlertFactory alertFactory = new AlertFactory(); // domyślna
 
-    private final ObservableList<Group> groups = FXCollections.observableArrayList();
+    public void setAlertFactory(AlertFactory alertFactory) {
+        this.alertFactory = alertFactory;
+    }
 
     @FXML
     public void initialize() {
@@ -43,7 +47,7 @@ public class DashboardController {
         if (currentUser.isProfessor()) {
             loadGroupsForProfessor(currentUser.getId());
             enableProfessorControls(true);
-        } else{
+        } else {
             loadGroupsForStudent(currentUser.getId());
             enableProfessorControls(false);
         }
@@ -70,11 +74,11 @@ public class DashboardController {
     }
 
     @FXML
-    private void onAddGroup() {
+    void onAddGroup() {
         User currentUser = SessionManager.getCurrentUser();
         String name = groupNameField.getText().trim();
         if (name.isEmpty()) {
-            new Alert(Alert.AlertType.WARNING, "Enter group's name!").showAndWait();
+            alertFactory.createAlert(Alert.AlertType.WARNING, "Uwaga", "Wprowadź nazwę grupy!").showAndWait();
             return;
         }
         Group group = new Group(name, currentUser.getId());
@@ -82,22 +86,22 @@ public class DashboardController {
             loadGroupsForProfessor(currentUser.getId());
             groupNameField.clear();
         } else {
-            new Alert(Alert.AlertType.ERROR, "Failed to add group.").showAndWait();
+            alertFactory.createAlert(Alert.AlertType.ERROR, "Błąd", "Nie udało się dodać grupy.").showAndWait();
         }
     }
 
     @FXML
-    private void onDeleteGroup() {
+    void onDeleteGroup() {
         User currentUser = SessionManager.getCurrentUser();
         Group selected = groupListView.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            new Alert(Alert.AlertType.WARNING, "Choose group to delete!").showAndWait();
+            alertFactory.createAlert(Alert.AlertType.WARNING, "Uwaga", "Wybierz grupę do usunięcia!").showAndWait();
             return;
         }
         if (groupDAO.deleteGroup(selected.getId())) {
             loadGroupsForProfessor(currentUser.getId());
         } else {
-            new Alert(Alert.AlertType.ERROR, "Failed to delete group.").showAndWait();
+            alertFactory.createAlert(Alert.AlertType.ERROR, "Błąd", "Nie udało się usunąć grupy.").showAndWait();
         }
     }
 
@@ -114,13 +118,26 @@ public class DashboardController {
             controller.setGroup(selected.getId(), selected.getName());
 
             Stage stage = new Stage();
-            stage.setTitle("Group: " + selected.getName());
+            stage.setTitle("Grupa: " + selected.getName());
             stage.setScene(new Scene(root));
             stage.show();
 
         } catch (IOException e) {
             e.printStackTrace();
-            new Alert(Alert.AlertType.ERROR, "Error opening group view.").showAndWait();
+            alertFactory.createAlert(Alert.AlertType.ERROR, "Błąd", "Nie udało się otworzyć widoku grupy.").showAndWait();
         }
     }
+
+    private final ObservableList<Group> groups = FXCollections.observableArrayList();
+
+    public void setGroupListView(ListView<Group> groupListView) { this.groupListView = groupListView; }
+    public void setGroupNameField(TextField groupNameField) { this.groupNameField = groupNameField; }
+    public void setAddGroupButton(Button addGroupButton) { this.addGroupButton = addGroupButton; }
+    public void setDeleteGroupButton(Button deleteGroupButton) { this.deleteGroupButton = deleteGroupButton; }
+    public void setRoleLabel(Label roleLabel) { this.roleLabel = roleLabel; }
+    public void setGroupDAO(GroupDAO groupDAO) { this.groupDAO = groupDAO; }
+    public void setGroupMemberDAO(GroupMemberDAO groupMemberDAO) { this.groupMemberDAO = groupMemberDAO; }
+
+    public ListView<Group> getGroupListView() { return groupListView; }
+    public TextField getGroupNameField() { return groupNameField; }
 }
