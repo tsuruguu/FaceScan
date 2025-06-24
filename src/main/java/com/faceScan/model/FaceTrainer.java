@@ -20,8 +20,6 @@ public class FaceTrainer {
         List<Mat> images = new ArrayList<>();
         List<Integer> labels = new ArrayList<>();
 
-        int label = 1;
-
         File dataDir = new File(dataPath);
         if (!dataDir.exists() || !dataDir.isDirectory()) {
             System.err.println("Brak folderu: " + dataPath);
@@ -30,19 +28,26 @@ public class FaceTrainer {
 
         for (File personDir : dataDir.listFiles()) {
             if (personDir.isDirectory()) {
+                int label;
+                try {
+                    label = Integer.parseInt(personDir.getName()); // ← Używamy ID jako labela
+                } catch (NumberFormatException e) {
+                    System.err.println("Folder " + personDir.getName() + " nie jest liczbą – pomijam.");
+                    continue;
+                }
+
                 for (File imgFile : personDir.listFiles()) {
                     if (imgFile.getName().endsWith(".jpg") || imgFile.getName().endsWith(".png")) {
                         Mat img = Imgcodecs.imread(imgFile.getAbsolutePath(), Imgcodecs.IMREAD_GRAYSCALE);
                         if (!img.empty()) {
                             images.add(img);
                             labels.add(label);
-                            System.out.println("Dodano: " + imgFile.getName() + " -> label " + label);
+                            System.out.println("Dodano: " + imgFile.getAbsolutePath() + " -> label " + label);
                         } else {
                             System.err.println("Nie można wczytać obrazu: " + imgFile.getAbsolutePath());
                         }
                     }
                 }
-                label++;
             }
         }
 

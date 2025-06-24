@@ -34,6 +34,31 @@ public class DashboardController {
         this.alertFactory = alertFactory;
     }
 
+
+    @FXML
+    private Button logoutButton;
+
+    @FXML
+    private void onLogout() {
+        SessionManager.logout();
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login_view.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) logoutButton.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Logowanie");
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            alertFactory.createAlert(Alert.AlertType.ERROR, "Błąd", "Nie udało się wylogować.").showAndWait();
+        }
+    }
+
+
+
     @FXML
     public void initialize() {
         User currentUser = SessionManager.getCurrentUser();

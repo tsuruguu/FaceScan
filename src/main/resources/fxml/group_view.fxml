@@ -3,52 +3,60 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<StackPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.faceScan.controller.GroupController"
-           stylesheets="@/styles/style.css"
-           prefWidth="800" prefHeight="600"
-           style="-fx-background-color: #f9f9f9;">
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.faceScan.controller.GroupController"
+            stylesheets="@/styles/style.css"
+            prefWidth="800" prefHeight="600"
+            style="-fx-background-color: #f9f9f9;">
 
-    <VBox spacing="15" alignment="CENTER" style="-fx-padding: 30;" maxWidth="700">
-
-        <Region VBox.vgrow="ALWAYS"/>
-
-        <Label fx:id="groupNameLabel" text="Nazwa grupy"
-               style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
-
-        <TableView fx:id="studentsTable" prefHeight="250" maxWidth="700">
-            <columns>
-                <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
-                <TableColumn fx:id="colFirstName" text="Imię" prefWidth="150"/>
-                <TableColumn fx:id="colLastName" text="Nazwisko" prefWidth="150"/>
-                <TableColumn fx:id="colPhoto" text="Zdjęcie" prefWidth="250"/>
-            </columns>
-        </TableView>
-
-        <HBox spacing="10" alignment="CENTER_LEFT" maxWidth="700">
-            <ComboBox fx:id="studentComboBox" promptText="Wybierz studenta" maxWidth="450" HBox.hgrow="ALWAYS"/>
-            <Button text="Dodaj wybranego" onAction="#handleAddExistingStudent" styleClass="button" maxWidth="230"/>
+    <top>
+        <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 10;">
+            <Button fx:id="backButton" text="Wróć" onAction="#onBack" styleClass="button"/>
         </HBox>
+    </top>
 
-        <HBox spacing="10" alignment="CENTER_LEFT" maxWidth="700">
-            <TextField fx:id="firstNameField" promptText="Imię" styleClass="text-field" maxWidth="220"/>
-            <TextField fx:id="lastNameField" promptText="Nazwisko" styleClass="text-field" maxWidth="220"/>
-            <Label fx:id="photoPathLabel" text="Brak zdjęcia" style="-fx-border-color: gray; -fx-padding: 4px; -fx-background-color: #fff; -fx-background-radius: 6px;" maxWidth="140"/>
-            <Button text="Wybierz zdjęcie" onAction="#handleSelectPhoto" styleClass="button"/>
-        </HBox>
+    <center>
+        <VBox spacing="15" alignment="CENTER" style="-fx-padding: 30;" maxWidth="700">
 
-        <HBox spacing="10" alignment="CENTER_LEFT" maxWidth="700" style="-fx-padding: 10 0 0 0;">
-            <Button text="Dodaj studenta" onAction="#handleAddStudent" styleClass="button"/>
-            <Button text="Usuń studenta" onAction="#handleDeleteStudent" styleClass="button"/>
-        </HBox>
+            <Region VBox.vgrow="ALWAYS"/>
 
-        <HBox spacing="10" alignment="CENTER_RIGHT" maxWidth="700" style="-fx-padding: 10 0 0 0;">
-            <Button text="Sprawdź obecność" onAction="#handleCheckAttendance" styleClass="button"/>
-        </HBox>
+            <Label fx:id="groupNameLabel" text="Nazwa grupy"
+                   style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
 
-        <Button fx:id="showHistoryBtn" layoutX="20" layoutY="420" text="Pokaż historię" onAction="#onShowHistory"/>
+            <TableView fx:id="studentsTable" prefHeight="250" maxWidth="700">
+                <columns>
+                    <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+                    <TableColumn fx:id="colFirstName" text="Imię" prefWidth="150"/>
+                    <TableColumn fx:id="colLastName" text="Nazwisko" prefWidth="150"/>
+                    <TableColumn fx:id="colPhoto" text="Zdjęcie" prefWidth="250"/>
+                </columns>
+            </TableView>
 
-        <Region VBox.vgrow="ALWAYS"/>
+            <HBox spacing="10" alignment="CENTER_LEFT" maxWidth="700">
+                <ComboBox fx:id="studentComboBox" promptText="Wybierz studenta" maxWidth="450" HBox.hgrow="ALWAYS"/>
+                <Button text="Dodaj wybranego" onAction="#handleAddExistingStudent" styleClass="button" maxWidth="230"/>
+            </HBox>
 
-    </VBox>
-</StackPane>
+            <HBox spacing="10" alignment="CENTER_LEFT" maxWidth="700">
+                <TextField fx:id="firstNameField" promptText="Imię" styleClass="text-field" maxWidth="220"/>
+                <TextField fx:id="lastNameField" promptText="Nazwisko" styleClass="text-field" maxWidth="220"/>
+                <Label fx:id="photoPathLabel" text="Brak zdjęcia" style="-fx-border-color: gray; -fx-padding: 4px; -fx-background-color: #fff; -fx-background-radius: 6px;" maxWidth="140"/>
+                <Button text="Wybierz zdjęcie" onAction="#handleSelectPhoto" styleClass="button"/>
+            </HBox>
+
+            <HBox spacing="10" alignment="CENTER_LEFT" maxWidth="700" style="-fx-padding: 10 0 0 0;">
+                <Button text="Dodaj studenta" onAction="#handleAddStudent" styleClass="button"/>
+                <Button text="Usuń studenta" onAction="#handleDeleteStudent" styleClass="button"/>
+            </HBox>
+
+            <HBox spacing="10" alignment="CENTER_RIGHT" maxWidth="700" style="-fx-padding: 10 0 0 0;">
+                <Button text="Sprawdź obecność" onAction="#handleCheckAttendance" styleClass="button"/>
+            </HBox>
+
+            <Button fx:id="showHistoryBtn" layoutX="20" layoutY="420" text="Pokaż historię" onAction="#onShowHistory"/>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+        </VBox>
+    </center>
+</BorderPane>

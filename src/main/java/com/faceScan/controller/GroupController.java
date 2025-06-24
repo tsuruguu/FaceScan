@@ -2,6 +2,7 @@ package com.faceScan.controller;
 
 import com.faceScan.dao.GroupMemberDAO;
 import com.faceScan.dao.UserDAO;
+import com.faceScan.model.FaceTrainer;
 import com.faceScan.model.StudentPresence;
 import com.faceScan.model.User;
 import com.faceScan.util.AlertFactory;
@@ -20,18 +21,32 @@ import javafx.scene.control.Alert.AlertType;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 public class GroupController {
 
-    @FXML private Label groupNameLabel;
-    @FXML private ComboBox<User> studentComboBox;
-    @FXML private TableView<User> studentsTable;
-    @FXML private TableColumn<User, String> colFirstName;
-    @FXML private TableColumn<User, String> colLastName;
-    @FXML private Label photoPathLabel;
-    @FXML private TextField firstNameField;
-    @FXML private TextField lastNameField;
+    @FXML
+    private Label groupNameLabel;
+    @FXML
+    private ComboBox<User> studentComboBox;
+    @FXML
+    private TableView<User> studentsTable;
+    @FXML
+    private TableColumn<User, String> colFirstName;
+    @FXML
+    private TableColumn<User, String> colLastName;
+    @FXML
+    private Label photoPathLabel;
+    @FXML
+    private TextField firstNameField;
+    @FXML
+    private TextField lastNameField;
+
+
+    @FXML
+    private Button backButton;
 
     private int groupId;
     private final ObservableList<User> students = FXCollections.observableArrayList();
@@ -150,10 +165,28 @@ public class GroupController {
         }
 
         User created = userDAO.getUserByUsername(newUser.getUsername());
-        if (created != null && groupMemberDAO.addStudentToGroup(created.getId(), groupId)) {
-            loadStudents();
-        } else {
-            alertFactory.createAlert(AlertType.ERROR, "Message", "Nie udało się dodać studenta do grupy.").showAndWait();
+        if (created != null) {
+            try {
+                File srcFile = new File(photoPath);
+                File destDir = new File("face_data/" + created.getId());
+                destDir.mkdirs();
+
+                File destFile = new File(destDir, "1.jpg");
+                Files.copy(srcFile.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+                FaceTrainer.main(null);
+
+                if (groupMemberDAO.addStudentToGroup(created.getId(), groupId)) {
+                    loadStudents();
+                    alertFactory.createAlert(AlertType.INFORMATION, "Sukces", "Student dodany i model zaktualizowany.").showAndWait();
+                } else {
+                    alertFactory.createAlert(AlertType.ERROR, "Message", "Nie udało się dodać studenta do grupy.").showAndWait();
+                }
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                alertFactory.createAlert(AlertType.ERROR, "Błąd", "Nie udało się skopiować zdjęcia i trenować modelu.").showAndWait();
+            }
         }
     }
 
@@ -236,36 +269,110 @@ public class GroupController {
     }
 
     // Gettery i settery
-    public Label getGroupNameLabel() { return groupNameLabel; }
-    public void setGroupNameLabel(Label groupNameLabel) { this.groupNameLabel = groupNameLabel; }
+    public Label getGroupNameLabel() {
+        return groupNameLabel;
+    }
 
-    public ComboBox<User> getStudentComboBox() { return studentComboBox; }
-    public void setStudentComboBox(ComboBox<User> studentComboBox) { this.studentComboBox = studentComboBox; }
+    public void setGroupNameLabel(Label groupNameLabel) {
+        this.groupNameLabel = groupNameLabel;
+    }
 
-    public TableView<User> getStudentsTable() { return studentsTable; }
-    public void setStudentsTable(TableView<User> studentsTable) { this.studentsTable = studentsTable; }
+    public ComboBox<User> getStudentComboBox() {
+        return studentComboBox;
+    }
 
-    public TableColumn<User, String> getColFirstName() { return colFirstName; }
-    public void setColFirstName(TableColumn<User, String> colFirstName) { this.colFirstName = colFirstName; }
+    public void setStudentComboBox(ComboBox<User> studentComboBox) {
+        this.studentComboBox = studentComboBox;
+    }
 
-    public TableColumn<User, String> getColLastName() { return colLastName; }
-    public void setColLastName(TableColumn<User, String> colLastName) { this.colLastName = colLastName; }
+    public TableView<User> getStudentsTable() {
+        return studentsTable;
+    }
 
-    public Label getPhotoPathLabel() { return photoPathLabel; }
-    public void setPhotoPathLabel(Label photoPathLabel) { this.photoPathLabel = photoPathLabel; }
+    public void setStudentsTable(TableView<User> studentsTable) {
+        this.studentsTable = studentsTable;
+    }
 
-    public TextField getFirstNameField() { return firstNameField; }
-    public void setFirstNameField(TextField firstNameField) { this.firstNameField = firstNameField; }
+    public TableColumn<User, String> getColFirstName() {
+        return colFirstName;
+    }
 
-    public TextField getLastNameField() { return lastNameField; }
-    public void setLastNameField(TextField lastNameField) { this.lastNameField = lastNameField; }
+    public void setColFirstName(TableColumn<User, String> colFirstName) {
+        this.colFirstName = colFirstName;
+    }
 
-    public int getGroupId() { return groupId; }
-    public void setGroupId(int groupId) { this.groupId = groupId; }
+    public TableColumn<User, String> getColLastName() {
+        return colLastName;
+    }
 
-    public GroupMemberDAO getGroupMemberDAO() { return groupMemberDAO; }
-    public void setGroupMemberDAO(GroupMemberDAO groupMemberDAO) { this.groupMemberDAO = groupMemberDAO; }
+    public void setColLastName(TableColumn<User, String> colLastName) {
+        this.colLastName = colLastName;
+    }
 
-    public UserDAO getUserDAO() { return userDAO; }
-    public void setUserDAO(UserDAO userDAO) { this.userDAO = userDAO; }
+    public Label getPhotoPathLabel() {
+        return photoPathLabel;
+    }
+
+    public void setPhotoPathLabel(Label photoPathLabel) {
+        this.photoPathLabel = photoPathLabel;
+    }
+
+    public TextField getFirstNameField() {
+        return firstNameField;
+    }
+
+    public void setFirstNameField(TextField firstNameField) {
+        this.firstNameField = firstNameField;
+    }
+
+    public TextField getLastNameField() {
+        return lastNameField;
+    }
+
+    public void setLastNameField(TextField lastNameField) {
+        this.lastNameField = lastNameField;
+    }
+
+    public int getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(int groupId) {
+        this.groupId = groupId;
+    }
+
+    public GroupMemberDAO getGroupMemberDAO() {
+        return groupMemberDAO;
+    }
+
+    public void setGroupMemberDAO(GroupMemberDAO groupMemberDAO) {
+        this.groupMemberDAO = groupMemberDAO;
+    }
+
+    public UserDAO getUserDAO() {
+        return userDAO;
+    }
+
+    public void setUserDAO(UserDAO userDAO) {
+        this.userDAO = userDAO;
+    }
+
+
+    @FXML
+    private void onBack() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/dashboard_view.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) backButton.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Dashboard");
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            alertFactory.createAlert(Alert.AlertType.ERROR, "Błąd", "Nie udało się wrócić do dashboardu.").showAndWait();
+        }
+    }
+
 }

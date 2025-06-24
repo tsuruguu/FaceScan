@@ -13,6 +13,19 @@
     -fx-padding: 5;
 }
 
+.logout-button {
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-background-radius: 6px;
+    -fx-padding: 4 8;
+    -fx-cursor: hand;
+}
+
+.logout-button:hover {
+    -fx-background-color: #c0392b;
+}
+
 
 .button {
     -fx-font-size: 14px;

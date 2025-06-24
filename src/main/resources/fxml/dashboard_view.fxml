@@ -11,8 +11,9 @@
             style="-fx-background-color: #f9f9f9;">
 
     <top>
-        <HBox alignment="TOP_RIGHT" style="-fx-padding: 10;">
-            <Label fx:id="roleLabel" style="-fx-font-size: 14px;"/>
+        <HBox spacing="10" style="-fx-padding: 10;" alignment="CENTER_LEFT">
+            <Label fx:id="roleLabel" style="-fx-font-size: 14px;" HBox.hgrow="ALWAYS"/>
+            <Button fx:id="logoutButton" text="Wyloguj" onAction="#onLogout" styleClass="logout-button"/>
         </HBox>
     </top>
 
@@ -24,6 +25,7 @@
                 <TextField fx:id="groupNameField" promptText="Nowa grupa" styleClass="text-field" maxWidth="200"/>
                 <Button fx:id="addGroupButton" text="Dodaj" onAction="#onAddGroup" styleClass="button"/>
                 <Button fx:id="deleteGroupButton" text="Usuń" onAction="#onDeleteGroup" styleClass="button"/>
+
             </HBox>
 
             <ListView fx:id="groupListView" prefHeight="350" maxWidth="400" onMouseClicked="#onGroupSelected"/>
