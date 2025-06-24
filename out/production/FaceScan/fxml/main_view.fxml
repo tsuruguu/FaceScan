@@ -8,11 +8,14 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
 
+<?import javafx.scene.layout.HBox?>
 <AnchorPane stylesheets="@/styles/style.css" xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.faceScan.controller.MainController"
             prefWidth="900" prefHeight="600">
 
     <children>
+
+
 
         <ImageView fx:id="cameraView" styleClass="image-view"
                    fitWidth="500" fitHeight="375"

@@ -1,5 +1,6 @@
-package com.faceScan.model;
+package java.com.faceScan.model;
 
+import com.faceScan.model.StudentPresence;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 

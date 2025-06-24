@@ -7,6 +7,8 @@ import com.faceScan.model.*;
 import com.faceScan.iface.IFaceDetector;
 import com.faceScan.iface.IFaceRecognizer;
 
+import javafx.scene.control.Alert.AlertType;
+import com.faceScan.util.AlertFactory;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -61,6 +63,7 @@ public class MainController {
     @FXML private TableColumn<StudentPresence, String> colFirstName;
     @FXML private TableColumn<StudentPresence, String> colLastName;
     @FXML private TableColumn<StudentPresence, Boolean> colPresent;
+
 
     private final ObservableList<StudentPresence> studentPresenceList = FXCollections.observableArrayList();
 
@@ -298,5 +301,7 @@ public class MainController {
     }
 
     public ObservableList<StudentPresence> getStudentPresenceList() {return studentPresenceList;}
+
+
 
 }

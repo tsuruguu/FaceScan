@@ -1,5 +1,6 @@
-package com.faceScan.model;
+package java.com.faceScan.model;
 
+import com.faceScan.model.FaceDetector;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.opencv.core.Mat;
